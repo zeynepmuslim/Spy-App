@@ -34,7 +34,7 @@ class EnterViewController: UIViewController {
                 imageView.widthAnchor.constraint(equalToConstant: view.frame.width),
             ])
         }
-        let customDecoratedView = CustomGradientButton(shadowColor: .red)
+        let customDecoratedView = CustomGradientButton(shadowColor: .blue)
         customDecoratedView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(customDecoratedView)
         
@@ -52,22 +52,6 @@ class EnterViewController: UIViewController {
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         lowerStack.addSubview(titleLabel)
         
-        let firstView = UIView()
-        firstView.backgroundColor = .spyBlue04
-        firstView.layer.cornerRadius = 8
-        firstView.translatesAutoresizingMaskIntoConstraints = false
-        lowerStack.addSubview(firstView)
-        
-        let thirdView = UIView()
-        thirdView.backgroundColor = .gray
-        thirdView.layer.shadowColor = UIColor.spyBlue01.cgColor
-        thirdView.layer.shadowOpacity = 1.0
-        thirdView.layer.shadowOffset = CGSize(width: 0, height: 1)
-        thirdView.layer.shadowRadius = 10
-        thirdView.layer.cornerRadius = 10
-        thirdView.translatesAutoresizingMaskIntoConstraints = false
-        lowerStack.addSubview(thirdView)
-        
         let button1 = createButton(title: "jbhuhuh")
         let button2 = createButton(title: "Option 2")
         let button3 = createButton(title: "Option 3")
@@ -76,6 +60,12 @@ class EnterViewController: UIViewController {
         lowerStack.addSubview(button2)
         lowerStack.addSubview(button3)
         lowerStack.addSubview(customDecoratedView)
+        
+        customDecoratedView.onClick = {
+            print("Button Clicked!")
+            customDecoratedView.updateAppearance(shadowColor: .red, gradientColor: .red)
+
+        }
         
         
         NSLayoutConstraint.activate([

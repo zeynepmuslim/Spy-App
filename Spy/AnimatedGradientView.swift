@@ -1,10 +1,3 @@
-//
-//  CustomButton.swift
-//  Spy
-//
-//  Created by Zeynep Müslim on 4.03.2025.
-//
-
 import UIKit
 
 enum GradientColor {
@@ -31,7 +24,6 @@ class AnimatedGradientView: UIView {
     init(width: CGFloat, height: CGFloat, gradient: GradientColor) {
         super.init(frame: .zero)
         setupGradient(colors: gradient.colors)
-        animateGradientColors(colors: gradient.colors)
         setupSize(width: width, height: height)
     }
     
@@ -59,8 +51,17 @@ class AnimatedGradientView: UIView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-         
-        gradientLayer.frame = CGRect(x: -bounds.width, y: -bounds.height, width: bounds.width * 3, height: bounds.height * 3)
+               let maxSide = max(bounds.width, bounds.height)
+        let scaledSize = maxSide * 1.2
+               
+               gradientLayer.frame = CGRect(
+                   x: bounds.midX - scaledSize / 2,
+                   y: bounds.midY - scaledSize / 2,
+                   width: scaledSize,
+                   height: scaledSize
+               )
+               
+               gradientLayer.position = CGPoint(x: bounds.midX, y: bounds.midY)
     }
     
     private func animateGradientRotation() {
@@ -73,15 +74,14 @@ class AnimatedGradientView: UIView {
         gradientLayer.add(rotationAnimation, forKey: "rotation")
     }
     
-    func animateGradientColors(colors: [CGColor]) {
-        let colorChange = CABasicAnimation(keyPath: "colors")
-        colorChange.fromValue = colors
-        colorChange.toValue = colors.reversed()
-        colorChange.duration = 3.0
-        colorChange.autoreverses = true
-        colorChange.repeatCount = .infinity
-        colorChange.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+    func updateGradient(to gradient: GradientColor) {
+        let colorAnimation = CABasicAnimation(keyPath: "colors")
+        colorAnimation.fromValue = gradientLayer.colors
+        colorAnimation.toValue = gradient.colors
+        colorAnimation.duration = 0.5
+        colorAnimation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
         
-        gradientLayer.add(colorChange, forKey: "colorChange")
+        gradientLayer.add(colorAnimation, forKey: "colorChange")
+        gradientLayer.colors = gradient.colors
     }
 }

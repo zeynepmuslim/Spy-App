@@ -1,20 +1,23 @@
-//
-//  CustomButton.swift
-//  Spy
-//
-//  Created by Zeynep Müslim on 4.03.2025.
-//
-
 import UIKit
 
 class CustomGradientButton: UIView {
-    private let gradientColor: GradientColor
-    private let width: CGFloat
-    private let height: CGFloat
-    private let innerCornerRadius: CGFloat
-    private let outherCornerRadius: CGFloat
-    private let shadowColor: ShadowColor
-    private let borderWidth: CGFloat
+    var gradientColor: GradientColor
+    var width: CGFloat
+    var height: CGFloat
+    var innerCornerRadius: CGFloat
+    var outherCornerRadius: CGFloat
+    var shadowColor: ShadowColor
+    var borderWidth: CGFloat
+    
+    private let firstView = UIView()
+    private let thirdView = UIView()
+    private var firstViewTopConstraint: NSLayoutConstraint!
+    private var firstViewBottomConstraint: NSLayoutConstraint!
+    private var firstViewLeadingConstraint: NSLayoutConstraint!
+    private var firstViewTrailingConstraint: NSLayoutConstraint!
+    private var gradientAnimationBorder: AnimatedGradientView!
+    
+    var onClick: (() -> Void)?
     
     enum ShadowColor {
           case red
@@ -43,6 +46,7 @@ class CustomGradientButton: UIView {
         self.borderWidth = borderWidth
         super.init(frame: .zero)
         setupView()
+        setupTapGesture()
     }
     
     required init?(coder: NSCoder) {
@@ -55,19 +59,17 @@ class CustomGradientButton: UIView {
         self.borderWidth = 5
         super.init(coder: coder)
         setupView()
+        setupTapGesture()
     }
     
     private func setupView() {
-        
-        let firstView = UIView()
         firstView.backgroundColor = .spyBlue04
         firstView.layer.cornerRadius = innerCornerRadius
         
-        let gradientAnimationBorder = AnimatedGradientView(width: width, height: height, gradient: gradientColor)
+        gradientAnimationBorder = AnimatedGradientView(width: width, height: height, gradient: gradientColor)
         gradientAnimationBorder.layer.cornerRadius = outherCornerRadius
         gradientAnimationBorder.clipsToBounds = true
         
-        let thirdView = UIView()
         thirdView.backgroundColor = .gray
         thirdView.layer.shadowColor = shadowColor.cgColor
         thirdView.layer.shadowOpacity = 1.0
@@ -83,21 +85,67 @@ class CustomGradientButton: UIView {
         firstView.translatesAutoresizingMaskIntoConstraints = false
         thirdView.translatesAutoresizingMaskIntoConstraints = false
         
+        firstViewTopConstraint = firstView.topAnchor.constraint(equalTo: gradientAnimationBorder.topAnchor, constant: borderWidth)
+        firstViewBottomConstraint = firstView.bottomAnchor.constraint(equalTo: gradientAnimationBorder.bottomAnchor, constant: -borderWidth)
+        firstViewLeadingConstraint = firstView.leadingAnchor.constraint(equalTo: gradientAnimationBorder.leadingAnchor, constant: borderWidth)
+        firstViewTrailingConstraint = firstView.trailingAnchor.constraint(equalTo: gradientAnimationBorder.trailingAnchor, constant: -borderWidth)
+        
         NSLayoutConstraint.activate([
             gradientAnimationBorder.topAnchor.constraint(equalTo: topAnchor),
             gradientAnimationBorder.leadingAnchor.constraint(equalTo: leadingAnchor),
             gradientAnimationBorder.trailingAnchor.constraint(equalTo: trailingAnchor),
             gradientAnimationBorder.bottomAnchor.constraint(equalTo: bottomAnchor),
             
-            firstView.topAnchor.constraint(equalTo: gradientAnimationBorder.topAnchor, constant: borderWidth),
-            firstView.leadingAnchor.constraint(equalTo: gradientAnimationBorder.leadingAnchor, constant: borderWidth),
-            firstView.trailingAnchor.constraint(equalTo: gradientAnimationBorder.trailingAnchor, constant: -borderWidth),
-            firstView.bottomAnchor.constraint(equalTo: gradientAnimationBorder.bottomAnchor, constant: -borderWidth),
+            firstViewTopConstraint,
+            firstViewLeadingConstraint,
+            firstViewTrailingConstraint,
+            firstViewBottomConstraint,
             
             thirdView.topAnchor.constraint(equalTo: gradientAnimationBorder.topAnchor),
             thirdView.leadingAnchor.constraint(equalTo: gradientAnimationBorder.leadingAnchor),
             thirdView.trailingAnchor.constraint(equalTo: gradientAnimationBorder.trailingAnchor),
             thirdView.bottomAnchor.constraint(equalTo: gradientAnimationBorder.bottomAnchor),
         ])
+    }
+    
+    private func setupTapGesture() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+        self.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc private func handleTap() {
+        print("Test String")
+        animateButton()
+        onClick?()
+        layoutIfNeeded()
+    }
+    
+    func updateAppearance(shadowColor: ShadowColor, gradientColor: GradientColor) {
+        UIView.animate(withDuration: 0.3, animations: {
+            self.shadowColor = shadowColor
+            self.thirdView.layer.shadowColor = shadowColor.cgColor
+            self.gradientAnimationBorder.updateGradient(to: gradientColor)
+        })
+    }
+    
+    
+    private func animateButton() {
+        UIView.animate(withDuration: 0.5, animations: {
+            self.transform = CGAffineTransform(scaleX: 0.9, y: 0.90)
+            self.firstViewTopConstraint.constant = 0
+            self.firstViewBottomConstraint.constant = 0
+            self.firstViewLeadingConstraint.constant = 0
+            self.firstViewTrailingConstraint.constant = 0
+            self.layoutIfNeeded()
+        }) { _ in
+            UIView.animate(withDuration: 0.5) {
+                self.transform = .identity
+                self.firstViewTopConstraint.constant = self.borderWidth
+                self.firstViewBottomConstraint.constant = -self.borderWidth
+                self.firstViewLeadingConstraint.constant = self.borderWidth
+                self.firstViewTrailingConstraint.constant = -self.borderWidth
+                self.layoutIfNeeded()
+            }
+        }
     }
 }
