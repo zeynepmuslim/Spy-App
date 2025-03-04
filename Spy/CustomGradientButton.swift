@@ -8,9 +8,16 @@ class CustomGradientButton: UIView {
     var outherCornerRadius: CGFloat
     var shadowColor: ShadowColor
     var borderWidth: CGFloat
+    var labelText: String {
+        didSet {
+            titleLabel.text = labelText
+            animateLabelChange()
+        }
+    }
     
     private let firstView = UIView()
     private let thirdView = UIView()
+    private let titleLabel = UILabel()
     private var firstViewTopConstraint: NSLayoutConstraint!
     private var firstViewBottomConstraint: NSLayoutConstraint!
     private var firstViewLeadingConstraint: NSLayoutConstraint!
@@ -36,7 +43,7 @@ class CustomGradientButton: UIView {
           }
       }
     
-    init(gradientColor: GradientColor = .blue, width: CGFloat = 150, height: CGFloat = 50, innerCornerRadius: CGFloat = 8, outherCornerRadius: CGFloat = 10, shadowColor: ShadowColor = .red, borderWidth: CGFloat = 5) {
+    init(labelText: String = "", gradientColor: GradientColor = .blue, width: CGFloat = 150, height: CGFloat = 50, innerCornerRadius: CGFloat = 8, outherCornerRadius: CGFloat = 10, shadowColor: ShadowColor = .blue, borderWidth: CGFloat = 3) {
         self.gradientColor = gradientColor
         self.width = width
         self.height = height
@@ -44,6 +51,7 @@ class CustomGradientButton: UIView {
         self.outherCornerRadius = outherCornerRadius
         self.shadowColor = shadowColor
         self.borderWidth = borderWidth
+        self.labelText = labelText
         super.init(frame: .zero)
         setupView()
         setupTapGesture()
@@ -57,6 +65,7 @@ class CustomGradientButton: UIView {
         self.outherCornerRadius = 10
         self.shadowColor = .red
         self.borderWidth = 5
+        self.labelText = "Button"
         super.init(coder: coder)
         setupView()
         setupTapGesture()
@@ -77,13 +86,20 @@ class CustomGradientButton: UIView {
         thirdView.layer.shadowRadius = outherCornerRadius
         thirdView.layer.cornerRadius = outherCornerRadius
         
+        titleLabel.text = labelText
+        titleLabel.textColor = .white
+        titleLabel.font = UIFont.boldSystemFont(ofSize: 16)
+        titleLabel.textAlignment = .center
+        
         addSubview(thirdView)
         addSubview(gradientAnimationBorder)
         addSubview(firstView)
+        addSubview(titleLabel)
         
         gradientAnimationBorder.translatesAutoresizingMaskIntoConstraints = false
         firstView.translatesAutoresizingMaskIntoConstraints = false
         thirdView.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
         
         firstViewTopConstraint = firstView.topAnchor.constraint(equalTo: gradientAnimationBorder.topAnchor, constant: borderWidth)
         firstViewBottomConstraint = firstView.bottomAnchor.constraint(equalTo: gradientAnimationBorder.bottomAnchor, constant: -borderWidth)
@@ -105,6 +121,9 @@ class CustomGradientButton: UIView {
             thirdView.leadingAnchor.constraint(equalTo: gradientAnimationBorder.leadingAnchor),
             thirdView.trailingAnchor.constraint(equalTo: gradientAnimationBorder.trailingAnchor),
             thirdView.bottomAnchor.constraint(equalTo: gradientAnimationBorder.bottomAnchor),
+            
+            titleLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
+            titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
         ])
     }
     
@@ -120,6 +139,12 @@ class CustomGradientButton: UIView {
         layoutIfNeeded()
     }
     
+    private func animateLabelChange() {
+        UIView.transition(with: titleLabel, duration: 0.3, options: .transitionCrossDissolve, animations: {
+            self.titleLabel.text = self.labelText
+        }, completion: nil)
+    }
+    
     func updateAppearance(shadowColor: ShadowColor, gradientColor: GradientColor) {
         UIView.animate(withDuration: 0.3, animations: {
             self.shadowColor = shadowColor
@@ -128,14 +153,15 @@ class CustomGradientButton: UIView {
         })
     }
     
-    
     private func animateButton() {
         UIView.animate(withDuration: 0.5, animations: {
-            self.transform = CGAffineTransform(scaleX: 0.9, y: 0.90)
+            self.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
             self.firstViewTopConstraint.constant = 0
             self.firstViewBottomConstraint.constant = 0
             self.firstViewLeadingConstraint.constant = 0
             self.firstViewTrailingConstraint.constant = 0
+            self.firstView.layer.cornerRadius = self.outherCornerRadius
+            self.thirdView.layer.shadowOpacity = 0
             self.layoutIfNeeded()
         }) { _ in
             UIView.animate(withDuration: 0.5) {
@@ -144,6 +170,8 @@ class CustomGradientButton: UIView {
                 self.firstViewBottomConstraint.constant = -self.borderWidth
                 self.firstViewLeadingConstraint.constant = self.borderWidth
                 self.firstViewTrailingConstraint.constant = -self.borderWidth
+                self.firstView.layer.cornerRadius = self.innerCornerRadius
+                self.thirdView.layer.shadowOpacity = 1.0
                 self.layoutIfNeeded()
             }
         }

@@ -34,9 +34,15 @@ class EnterViewController: UIViewController {
                 imageView.widthAnchor.constraint(equalToConstant: view.frame.width),
             ])
         }
-        let customDecoratedView = CustomGradientButton(shadowColor: .blue)
-        customDecoratedView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(customDecoratedView)
+        
+        let startGameButton = CustomGradientButton(labelText: "Yeni Oyun",gradientColor: .red, shadowColor: .red)
+        let settingsButton = CustomGradientButton(labelText: "Ayarlar")
+        let howToPlayButton = CustomGradientButton(labelText: "Nasıl Oynanır")
+        
+        startGameButton.translatesAutoresizingMaskIntoConstraints = false
+        settingsButton.translatesAutoresizingMaskIntoConstraints = false
+        howToPlayButton.translatesAutoresizingMaskIntoConstraints = false
+        
         
         let lowerStack = UIStackView()
         lowerStack.axis = .vertical
@@ -52,19 +58,22 @@ class EnterViewController: UIViewController {
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         lowerStack.addSubview(titleLabel)
         
-        let button1 = createButton(title: "jbhuhuh")
-        let button2 = createButton(title: "Option 2")
-        let button3 = createButton(title: "Option 3")
+        lowerStack.addSubview(startGameButton)
+        lowerStack.addSubview(settingsButton)
+        lowerStack.addSubview(howToPlayButton)
         
-        lowerStack.addSubview(button1)
-        lowerStack.addSubview(button2)
-        lowerStack.addSubview(button3)
-        lowerStack.addSubview(customDecoratedView)
+        startGameButton.onClick = {
+            print("Start Game Button Clicked!")
+        }
         
-        customDecoratedView.onClick = {
-            print("Button Clicked!")
-            customDecoratedView.updateAppearance(shadowColor: .red, gradientColor: .red)
-
+        settingsButton.onClick = {
+            print("Settings Button Clicked!")
+            settingsButton.updateAppearance(shadowColor: .red, gradientColor: .red)
+            settingsButton.labelText = "Button Clicked"
+        }
+        
+        howToPlayButton.onClick = {
+            print("How to Play Button Clicked!")
         }
         
         
@@ -84,38 +93,17 @@ class EnterViewController: UIViewController {
             titleLabel.centerXAnchor.constraint(equalTo: lowerStack.centerXAnchor),
             titleLabel.heightAnchor.constraint(equalToConstant: 60),
             
-            button1.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 40),
-            button1.centerXAnchor.constraint(equalTo: lowerStack.centerXAnchor),
+            startGameButton.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 40),
+            startGameButton.centerXAnchor.constraint(equalTo: lowerStack.centerXAnchor),
             
-            button2.topAnchor.constraint(equalTo: button1.bottomAnchor, constant:20),
-            button2.centerXAnchor.constraint(equalTo: lowerStack.centerXAnchor),
+            settingsButton.topAnchor.constraint(equalTo: startGameButton.bottomAnchor, constant:20),
+            settingsButton.centerXAnchor.constraint(equalTo: lowerStack.centerXAnchor),
             
-            button3.topAnchor.constraint(equalTo: button2.bottomAnchor, constant: 20),
-            button3.centerXAnchor.constraint(equalTo: lowerStack.centerXAnchor),
-            
-            customDecoratedView.topAnchor.constraint(equalTo: button3.bottomAnchor, constant: 20),
-            customDecoratedView.centerXAnchor.constraint(equalTo: lowerStack.centerXAnchor),
+            howToPlayButton.topAnchor.constraint(equalTo: settingsButton.bottomAnchor, constant: 20),
+            howToPlayButton.centerXAnchor.constraint(equalTo: lowerStack.centerXAnchor),
             
         ])
     }
-    
-    private func createButton(title: String) -> UIButton {
-        let button = UIButton(type: .system)
-        button.setTitle(title, for: .normal)
-        button.setTitleColor(.white, for: .normal)
-        button.backgroundColor = .systemBlue
-        button.layer.cornerRadius = 10
-        button.widthAnchor.constraint(equalToConstant: 150).isActive = true
-        button.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
-        return button
-    }
-    
-    @objc func buttonTapped() {
-        print("Button was tapped!")
-    }
-    
 }
 
 
