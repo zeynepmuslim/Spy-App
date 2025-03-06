@@ -35,14 +35,9 @@ class EnterViewController: UIViewController {
             ])
         }
         
-        let startGameButton = CustomGradientButton(labelText: "Yeni Oyun",gradientColor: .red, shadowColor: .red)
+        let startGameButton = CustomGradientButton(labelText: "Yeni Oyun",gradientColor: .red, width: 150,height: 200,shadowColor: .red)
         let settingsButton = CustomGradientButton(labelText: "Ayarlar")
         let howToPlayButton = CustomGradientButton(labelText: "Nasıl Oynanır")
-        
-        startGameButton.translatesAutoresizingMaskIntoConstraints = false
-        settingsButton.translatesAutoresizingMaskIntoConstraints = false
-        howToPlayButton.translatesAutoresizingMaskIntoConstraints = false
-        
         
         let lowerStack = UIStackView()
         lowerStack.axis = .vertical
