@@ -62,8 +62,10 @@ class EnterViewController: UIViewController {
         lowerStack.addSubview(settingsButton)
         lowerStack.addSubview(howToPlayButton)
         
-        startGameButton.onClick = {
+        startGameButton.onClick = { [weak self] in
+            guard let self = self else { return }
             print("Start Game Button Clicked!")
+            self.performSegue(withIdentifier: "menuToGameSettings", sender: self)
         }
         
         settingsButton.onClick = {
@@ -107,7 +109,7 @@ class EnterViewController: UIViewController {
 }
 
 
-struct ViewController_Previews: PreviewProvider {
+struct ViewController_Previews1: PreviewProvider {
     static var previews: some View {
         ViewControllerPreview {
             EnterViewController()

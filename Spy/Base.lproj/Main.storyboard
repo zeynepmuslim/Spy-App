@@ -18,10 +18,29 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
+                    <connections>
+                        <segue destination="KiQ-IM-lpF" kind="show" identifier="menuToGameSettings" id="hwg-sC-6Y3"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="102" y="4"/>
+        </scene>
+        <!--Game Settings View Controller-->
+        <scene sceneID="xcZ-Ib-Pbl">
+            <objects>
+                <viewController modalPresentationStyle="fullScreen" id="KiQ-IM-lpF" customClass="GameSettingsViewController" customModule="Spy" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="tNC-A0-3Th">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="qNA-Xf-XXl"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="AaW-5X-gRl"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="p8N-NX-XPG" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="877" y="4"/>
         </scene>
     </scenes>
     <resources>

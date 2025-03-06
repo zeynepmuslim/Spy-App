@@ -133,8 +133,18 @@ class CustomGradientButton: UIView {
     }
     
     @objc private func handleTap() {
-        print("Test String")
-        animateButton()
+        print("handleTap by GradientButton")
+        AnimationHelper.animateButton(
+            firstView: self.firstView,
+            thirdView: self.thirdView,
+            firstViewTopConstraint: self.firstViewTopConstraint,
+            firstViewBottomConstraint: self.firstViewBottomConstraint,
+            firstViewLeadingConstraint: self.firstViewLeadingConstraint,
+            firstViewTrailingConstraint: self.firstViewTrailingConstraint,
+            outerCornerRadius: self.outherCornerRadius,
+            innerCornerRadius: self.innerCornerRadius,
+            borderWidth: self.borderWidth
+        )
         onClick?()
         layoutIfNeeded()
     }
@@ -151,29 +161,5 @@ class CustomGradientButton: UIView {
             self.thirdView.layer.shadowColor = shadowColor.cgColor
             self.gradientAnimationBorder.updateGradient(to: gradientColor)
         })
-    }
-    
-    private func animateButton() {
-        UIView.animate(withDuration: 0.5, animations: {
-            self.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
-            self.firstViewTopConstraint.constant = 0
-            self.firstViewBottomConstraint.constant = 0
-            self.firstViewLeadingConstraint.constant = 0
-            self.firstViewTrailingConstraint.constant = 0
-            self.firstView.layer.cornerRadius = self.outherCornerRadius
-            self.thirdView.layer.shadowOpacity = 0
-            self.layoutIfNeeded()
-        }) { _ in
-            UIView.animate(withDuration: 0.5) {
-                self.transform = .identity
-                self.firstViewTopConstraint.constant = self.borderWidth
-                self.firstViewBottomConstraint.constant = -self.borderWidth
-                self.firstViewLeadingConstraint.constant = self.borderWidth
-                self.firstViewTrailingConstraint.constant = -self.borderWidth
-                self.firstView.layer.cornerRadius = self.innerCornerRadius
-                self.thirdView.layer.shadowOpacity = 1.0
-                self.layoutIfNeeded()
-            }
-        }
     }
 }
