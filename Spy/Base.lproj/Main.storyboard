@@ -37,10 +37,29 @@
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
                     <navigationItem key="navigationItem" id="AaW-5X-gRl"/>
+                    <connections>
+                        <segue destination="orL-jf-W9a" kind="show" identifier="gameSettingsToCards" id="Bq9-At-xlh"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="p8N-NX-XPG" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="877" y="4"/>
+        </scene>
+        <!--Game Cards View Controller-->
+        <scene sceneID="18c-tB-Zfr">
+            <objects>
+                <viewController modalPresentationStyle="fullScreen" id="orL-jf-W9a" customClass="GameCardsViewController" customModule="Spy" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="DDO-im-Bij">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="kok-ci-mvT"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="2aB-zZ-juu"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="QLy-Gt-RF8" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1653" y="4"/>
         </scene>
     </scenes>
     <resources>

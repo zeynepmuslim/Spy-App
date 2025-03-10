@@ -7,26 +7,33 @@ class GameSettingsViewController: UIViewController {
     private let bigMargin : CGFloat = 20
     private let littleMargin : CGFloat = 5
     private let buttonsHeight : CGFloat = 40
-//    let playerIconsContainer = UIStackView()
     
     let playerIconsContainer = UIStackView()
-     var imageViews: [UIImageView] = []
-     let maxStackWidth: CGFloat = 300 // StackView'in maksimum genişliği
-     let initialIconSize: CGFloat = 50
+    var imageViews: [UIImageView] = []
+    let initialIconSize: CGFloat = 50
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         
         setupStackView()
-               
-               // Başlangıçta 3 resim ekleyelim
+        
         for _ in 0..<3 {
             addNewIcon()
         }
         
         let gradientView = GradientView(superView: view)
         let backButton = BackButton(target: self, action: #selector(customBackAction))
+        
+        let startButton = CustomGradientButton(labelText: "Oyna", width: 100, height: 60)
+        startButton.onClick = {
+        }
+        bottomView.addSubview(startButton)
+        startButton.onClick = { [weak self] in
+            guard let self = self else { return }
+            print("Start Game Button Clicked! at settins")
+            self.performSegue(withIdentifier: "gameSettingsToCards", sender: self)
+        }
         
         
         let playerNumberLabel = UILabel()
@@ -36,13 +43,12 @@ class GameSettingsViewController: UIViewController {
         playerNumberLabel.translatesAutoresizingMaskIntoConstraints = false
         bottomView.addSubview(playerNumberLabel)
         
-        //PlayerNumber
         let minusButtonPN = CustomGradientButton(labelText: "-", width: buttonsHeight, height: buttonsHeight)
         minusButtonPN.onClick = {
             self.removeLastIcon(animated: true)
-        }// As
+        }
         bottomView.addSubview(minusButtonPN)
-
+        
         
         let plusButtonPN = CustomGradientButton(labelText: "+", width: buttonsHeight, height: buttonsHeight)
         plusButtonPN.onClick = {
@@ -53,26 +59,18 @@ class GameSettingsViewController: UIViewController {
         let customizeBUttonPN = CustomGradientButton(labelText: "Özelleştir", width: 100, height: buttonsHeight)
         bottomView.addSubview(customizeBUttonPN)
         
- 
+        
         playerIconsContainer.axis = .horizontal
         playerIconsContainer.spacing = 8
         playerIconsContainer.alignment = .center
         playerIconsContainer.distribution = .fill
-        playerIconsContainer.backgroundColor = .red
         playerIconsContainer.translatesAutoresizingMaskIntoConstraints = false
         bottomView.addSubview(playerIconsContainer)
-        
-//        let icon1 = UIImageView(image: UIImage(systemName: "star.fill"))
-//        let icon2 = UIImageView(image: UIImage(systemName: "star.fill"))
-//        icon1.contentMode = .scaleAspectFill
-//        icon1.backgroundColor = .blue
-//        icon2.contentMode = .scaleAspectFit// Yeni nesne
-//        playerIconsContainer.addArrangedSubview(icon1)
-//        playerIconsContainer.addArrangedSubview(icon2)
-        
+
         view.addSubview(gradientView)
         view.addSubview(backButton)
         view.addSubview(bottomView)
+        view.addSubview(startButton)
         
         NSLayoutConstraint.activate([
             backButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
@@ -82,8 +80,12 @@ class GameSettingsViewController: UIViewController {
             
             bottomView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: bigMargin),
             bottomView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -bigMargin),
-            bottomView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20),
+            bottomView.bottomAnchor.constraint(equalTo: startButton.topAnchor, constant: -20),
             bottomView.topAnchor.constraint(equalTo: backButton.bottomAnchor, constant: 10),
+            
+            startButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: bigMargin),
+            startButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -bigMargin),
+            startButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             
             playerNumberLabel.topAnchor.constraint(equalTo: bottomView.topAnchor, constant: bigMargin),
             playerNumberLabel.leadingAnchor.constraint(equalTo: bottomView.leadingAnchor, constant: bigMargin),
@@ -100,36 +102,19 @@ class GameSettingsViewController: UIViewController {
             customizeBUttonPN.trailingAnchor.constraint(equalTo: bottomView.trailingAnchor, constant: -bigMargin),
             
             playerIconsContainer.topAnchor.constraint(equalTo: playerNumberLabel.bottomAnchor, constant: littleMargin),
-//            playerIconsContainer.heightAnchor.constraint(equalToConstant: buttonsHeight),
             playerIconsContainer.leadingAnchor.constraint(equalTo: playerNumberLabel.leadingAnchor),
             playerIconsContainer.heightAnchor.constraint(equalToConstant: buttonsHeight),
             playerIconsContainer.widthAnchor.constraint(lessThanOrEqualTo: bottomView.widthAnchor, multiplier: 0.6)
-//            playerIconsContainer.trailingAnchor.constraint(equalTo: customizeBUttonPN.leadingAnchor, constant: -bigMargin),
-            
-//            icon1.widthAnchor.constraint(equalTo: playerIconsContainer.widthAnchor, multiplier: 0.2),
         ])
     }
     
     @objc func customBackAction() {
-//        addNewIcon()
-//        addNewIcon()
-//        dismiss(animated: true, completion: nil)
-//        navigationController?.popViewController(animated: true)
+        dismiss(animated: true, completion: nil)
+        navigationController?.popViewController(animated: true)
     }
     
     var iconConstraints: [NSLayoutConstraint] = []
-
-//    @objc func addNewIcon() {
-//        let icon = UIImageView(image: UIImage(systemName: "star.fill"))
-//        icon.translatesAutoresizingMaskIntoConstraints = false
-//        icon.contentMode = .scaleAspectFit
-//        playerIconsContainer.addArrangedSubview(icon)
-//
-//        // İkon için genişlik Constraint'i ekleniyor
-//        let iconWidthConstraint = icon.widthAnchor.constraint(equalToConstant: 30)
-//        iconWidthConstraint.isActive = true
-//        iconConstraints.append(iconWidthConstraint)
-//    }
+    
     
     func setupStackView() {
         playerIconsContainer.axis = .horizontal
@@ -141,11 +126,8 @@ class GameSettingsViewController: UIViewController {
         
         playerIconsContainer.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-//            playerIconsContainer.widthAnchor.constraint(lessThanOrEqualToConstant: 200),
         ])
     }
-    
-
     
     func removeLastIcon(animated: Bool) {
         guard let lastImageView = imageViews.popLast() else { return }
@@ -153,88 +135,102 @@ class GameSettingsViewController: UIViewController {
         if animated {
             UIView.animate(withDuration: 0.3, animations: {
                 lastImageView.alpha = 0
-                lastImageView.transform = CGAffineTransform(scaleX: 0.5, y: 0.5) // Shrink before removing
+                lastImageView.transform = CGAffineTransform(scaleX: 0.5, y: 0.5)
             }) { _ in
                 lastImageView.removeFromSuperview()
-                self.adjustIconSizes(animated: true) // Animate remaining icons
+                self.adjustIconSizes(animated: true)
             }
         } else {
             lastImageView.removeFromSuperview()
             adjustIconSizes(animated: false)
         }
     }
-
+    
     func addNewIcon() {
-        let newImageView = UIImageView(image: UIImage(named: "spy"))
+        let newImageView = UIImageView(image: UIImage(named: "spy-w"))
         newImageView.contentMode = .scaleAspectFit
         newImageView.tintColor = .systemBlue
+        newImageView.frame.size = CGSize(width: 5, height: 5)
         newImageView.alpha = 0
-        newImageView.transform = CGAffineTransform(scaleX: 0.5, y: 0.5) // Start small
+        
+        // Calculate the correct size before adding
+        let count = CGFloat(imageViews.count + 1) // Include the new icon in count
+        let calculatedSize = initialIconSize * (3.0 / count)
+        let newSize = min(calculatedSize, initialIconSize)
+        
+        newImageView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            newImageView.widthAnchor.constraint(equalToConstant: newSize),
+            newImageView.heightAnchor.constraint(equalToConstant: newSize)
+        ])
+        
+        // Position the new icon at the right edge of the container
+        let containerWidth = playerIconsContainer.bounds.width
+        // Get y position from existing icons or use container center if no icons exist
+        let yOffset = imageViews.first?.frame.minY ?? playerIconsContainer.bounds.height / 2
+        newImageView.transform = CGAffineTransform(translationX: containerWidth / 10, y: yOffset)
         
         imageViews.append(newImageView)
         playerIconsContainer.addArrangedSubview(newImageView)
         
-        // Animate appearance
-        UIView.animate(withDuration: 0.3, animations: {
-            newImageView.alpha = 1
+        // First shrink existing icons if needed
+        self.adjustIconSizes(animated: true)
+        
+        // First animation: Move to position
+        UIView.animate(withDuration: 0.2, 
+                      delay: 0,
+                      options: .curveEaseOut,
+                      animations: {
             newImageView.transform = .identity
         }) { _ in
-            self.adjustIconSizes(animated: true) // Animate resizing
+            // Second animation: Fade in after reaching position
+            UIView.animate(withDuration: 0.15,
+                         delay: 0,
+                         options: .curveLinear,
+                         animations: {
+                newImageView.alpha = 1
+            })
         }
     }
-
+    
     func adjustIconSizes(animated: Bool) {
         let count = CGFloat(imageViews.count)
-        let newSize = max(initialIconSize * (3.0 / count), 10)
+        let calculatedSize = initialIconSize * (3.0 / count)
+        // Never allow size to increase above initialIconSize
+        let newSize = min(calculatedSize, initialIconSize)
         
-        if animated {
-            UIView.animate(withDuration: 0.3, animations: {
-                for imageView in self.imageViews {
-                    // Remove old constraints before adding new ones
-                    NSLayoutConstraint.deactivate(imageView.constraints)
-
-                    imageView.widthAnchor.constraint(equalToConstant: newSize).isActive = true
-                    imageView.heightAnchor.constraint(equalToConstant: newSize).isActive = true
-                    
-                    if self.imageViews.count > 6 {
-                        imageView.layer.cornerRadius = newSize / 2
-                        imageView.clipsToBounds = true
-                        imageView.image = UIImage(systemName: "circle.fill")
-                    } else {
-                        imageView.layer.cornerRadius = 0
-                        imageView.image = UIImage(named: "spy")
-                    }
-                }
-                self.playerIconsContainer.layoutIfNeeded() // Smooth layout updates
-            })
-        } else {
-            for imageView in imageViews {
+        let animationBlock = {
+            for imageView in self.imageViews {
                 NSLayoutConstraint.deactivate(imageView.constraints)
-
-                imageView.widthAnchor.constraint(equalToConstant: newSize).isActive = true
-                imageView.heightAnchor.constraint(equalToConstant: newSize).isActive = true
-
-                if imageViews.count > 6 {
-                    imageView.layer.cornerRadius = newSize / 2
+                imageView.translatesAutoresizingMaskIntoConstraints = false
+                
+                NSLayoutConstraint.activate([
+                    imageView.widthAnchor.constraint(equalToConstant: newSize),
+                    imageView.heightAnchor.constraint(equalToConstant: newSize)
+                ])
+                
+                if self.imageViews.count > 6 {
+                    imageView.layer.cornerRadius = newSize / 3
                     imageView.clipsToBounds = true
+                    imageView.tintColor = .white
                     imageView.image = UIImage(systemName: "circle.fill")
                 } else {
                     imageView.layer.cornerRadius = 0
-                    imageView.image = UIImage(named: "spy")
+                    imageView.image = UIImage(named: "spy-w")
                 }
             }
-            playerIconsContainer.layoutIfNeeded() // Immediate layout update
+            self.playerIconsContainer.layoutIfNeeded()
+        }
+        
+        if animated {
+            UIView.animate(withDuration: 0.3, 
+                         delay: 0,
+                         options: .curveEaseOut,
+                         animations: animationBlock)
+        } else {
+            animationBlock()
         }
     }
-//    func adjustIconSizes() {
-//        let count = CGFloat(imageViews.count)
-//        let newSize = max(initialIconSize * (3.0 / count), 10)
-//        
-//        for imageView in imageViews {
-//            imageView.widthAnchor.constraint(equalToConstant: newSize).isActive = true
-//            imageView.heightAnchor.constraint(equalToConstant: newSize).isActive = true
-//        }
-//    }
 }
 
 
