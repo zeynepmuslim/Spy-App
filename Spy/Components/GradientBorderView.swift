@@ -17,6 +17,34 @@ enum ShadowColor {
       }
   }
 
+enum ButtonStatus {
+    case activeRed
+    case activeBlue
+    case deactive
+    
+    var shadowColor: ShadowColor {
+        switch self {
+        case .activeRed:
+            return .red
+        case .activeBlue:
+            return .blue
+        case .deactive:
+            return .gray
+        }
+    }
+    
+    var gradientColor: GradientColor {
+        switch self {
+        case .activeRed:
+            return .red
+        case .activeBlue:
+            return .blue
+        case .deactive:
+            return .gray
+        }
+    }
+}
+
 class CustomGradientButton: UIView {
     var gradientColor: GradientColor
     var width: CGFloat
@@ -43,6 +71,12 @@ class CustomGradientButton: UIView {
     private var currentAnimator: UIViewPropertyAnimator?
     
     var onClick: (() -> Void)?
+    
+    private var status: ButtonStatus = .activeBlue {
+        didSet {
+            updateAppearance(shadowColor: status.shadowColor, gradientColor: status.gradientColor)
+        }
+    }
     
     init(labelText: String = "", gradientColor: GradientColor = .blue, width: CGFloat = 150, height: CGFloat = 50, innerCornerRadius: CGFloat = 8, outherCornerRadius: CGFloat = 10, shadowColor: ShadowColor = .blue, borderWidth: CGFloat = 3) {
         self.gradientColor = gradientColor
@@ -176,5 +210,13 @@ class CustomGradientButton: UIView {
             self.thirdView.layer.shadowColor = shadowColor.cgColor
             self.gradientAnimationBorder.updateGradient(to: gradientColor)
         })
+    }
+    
+    func setStatus(_ newStatus: ButtonStatus) {
+        status = newStatus
+    }
+    
+    func getStatus() -> ButtonStatus {
+        return status
     }
 }

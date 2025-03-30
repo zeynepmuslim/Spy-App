@@ -3,240 +3,285 @@ import SwiftUI
 
 class PlayerGroupManager {
     private enum Constants {
-        static let iconSpacing: CGFloat = 8
+        static let iconSpacing: CGFloat = 10
         static let buttonsHeight: CGFloat = 40
-        static let initialIconSize: CGFloat = 50
         static let maxPlayerCount: Int = 6
-        static let animationDuration: TimeInterval = 0.3
+        static let animationDuration: TimeInterval = 0.4
         static let fadeInDuration: TimeInterval = 0.15
         static let titleSize: CGFloat = 18
+        static let maxIconSize: CGFloat = 45
+        static let iconThreshold: Int = 6
+        static let waveDelay: TimeInterval = 0.05
     }
     
     class PlayerGroup {
-        let stackView: UIStackView           // Contains the player icons
-        var imageViews: [UIImageView]        // Collection of player icons
-        let label: UILabel                   // Title label for the group
-        let minusButton: CustomGradientButton // Button to remove players
-        let plusButton: CustomGradientButton  // Button to add players
-        let spacerView: UIView       // Spacer for alignment purposes
+        let stackView: UIStackView
+        let horizontalStackView: UIStackView
+        var imageViews: [UIImageView]
+        let label: VerticalAlignedLabel
+        let minusButton: CustomGradientButton
+        let plusButton: CustomGradientButton
+        let spacerView: UIView
+        let imagesStackView: UIStackView
         
-        /// Initializes a new player group with the specified configuration
-        /// - Parameters:
-        ///   - title: The title of the group
-        ///   - target: The view controller that owns this group
-        ///   - index: The index of this group in the collection
-        ///   - onRemove: Callback for player removal
-        ///   - onAdd: Callback for player addition
-        init(title: String, target: UIViewController, index: Int, onRemove: @escaping () -> Void, onAdd: @escaping () -> Void, buttonColor : GradientColor = .blue, buttonShadow: ShadowColor = .blue) {
-            stackView = {
-                let stack = UIStackView()
-                stack.axis = .horizontal
-                stack.spacing = Constants.iconSpacing
-                stack.alignment = .leading
-                stack.distribution = .fill
-                stack.translatesAutoresizingMaskIntoConstraints = false
-                return stack
-            }()
+        let minSpyCount: Int
+        
+        let maxSpyCount: Int
+        
+        let buttonColor: GradientColor
+        
+        init(title: String, 
+             target: UIViewController, 
+             index: Int, 
+             onRemove: @escaping () -> Void, 
+             onAdd: @escaping () -> Void, 
+             buttonColor: GradientColor = .blue, 
+             buttonShadow: ShadowColor = .blue,
+             minSpyCount: Int = 1,
+             maxSpyCount: Int = 8) {
             
-            spacerView = {
-                let view = UIView()
-                view.translatesAutoresizingMaskIntoConstraints = false
-                view.setContentHuggingPriority(.defaultLow, for: .horizontal)
-                view.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-                return view
-            }()
+            self.minSpyCount = max(1, minSpyCount)
+            self.maxSpyCount = max(self.minSpyCount, maxSpyCount)
             
+            self.buttonColor = buttonColor
+            
+            stackView = UIStackView()
+            horizontalStackView = UIStackView()
+            imagesStackView = UIStackView()
+            spacerView = UIView()
             imageViews = []
             
-            label = {
-                let label = UILabel()
-                label.text = title
-                label.textColor = .white
-                label.font = UIFont.boldSystemFont(ofSize: Constants.titleSize)
-                label.translatesAutoresizingMaskIntoConstraints = false
-                return label
-            }()
+            stackView.axis = .vertical
+            stackView.spacing = Constants.iconSpacing
+            stackView.alignment = .fill
+            stackView.distribution = .fill
+            stackView.translatesAutoresizingMaskIntoConstraints = false
             
-            minusButton = {
-                let button = CustomGradientButton(labelText: "-", gradientColor: buttonColor, width: Constants.buttonsHeight, height: Constants.buttonsHeight, shadowColor: buttonShadow)
-                button.onClick = onRemove
-                button.translatesAutoresizingMaskIntoConstraints = false
-                return button
-            }()
+            horizontalStackView.axis = .horizontal
+            horizontalStackView.spacing = Constants.iconSpacing
+            horizontalStackView.alignment = .center
+            horizontalStackView.distribution = .fill
+            horizontalStackView.translatesAutoresizingMaskIntoConstraints = false
             
-            plusButton = {
-                let button = CustomGradientButton(labelText: "+", gradientColor: buttonColor, width: Constants.buttonsHeight, height: Constants.buttonsHeight, shadowColor: buttonShadow)
-                button.onClick = onAdd
-                button.translatesAutoresizingMaskIntoConstraints = false
-                return button
-            }()
+            imagesStackView.axis = .horizontal
+            imagesStackView.spacing = Constants.iconSpacing
+            imagesStackView.alignment = .center
+            imagesStackView.distribution = .fillEqually
+            imagesStackView.translatesAutoresizingMaskIntoConstraints = false
             
-            // Add views to stack view in correct order for left alignment
-            stackView.addArrangedSubview(spacerView)
+            spacerView.translatesAutoresizingMaskIntoConstraints = false
+            spacerView.setContentHuggingPriority(.defaultLow, for: .horizontal)
+            spacerView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
             
-            // Set stack view to full width
-            stackView.setContentHuggingPriority(.defaultHigh, for: .horizontal)
-            stackView.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+            label = VerticalAlignedLabel()
+            label.text = title
+            label.textColor = .white
+            label.numberOfLines = 0
+            label.font = UIFont.boldSystemFont(ofSize: Constants.titleSize)
+            label.translatesAutoresizingMaskIntoConstraints = false
+            label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+            label.verticalAlignment = .custom(5)
+            
+            minusButton = CustomGradientButton(labelText: "-", gradientColor: buttonColor, width: Constants.buttonsHeight, height: Constants.buttonsHeight, shadowColor: buttonShadow)
+            minusButton.translatesAutoresizingMaskIntoConstraints = false
+            
+            plusButton = CustomGradientButton(labelText: "+", gradientColor: buttonColor, width: Constants.buttonsHeight, height: Constants.buttonsHeight, shadowColor: buttonShadow)
+            plusButton.translatesAutoresizingMaskIntoConstraints = false
+            
+            stackView.addArrangedSubview(label)
+            stackView.addArrangedSubview(horizontalStackView)
+            
+            createSpyImages()
+            
+            horizontalStackView.addArrangedSubview(imagesStackView)
+            horizontalStackView.addArrangedSubview(spacerView)
+            horizontalStackView.addArrangedSubview(minusButton)
+            horizontalStackView.addArrangedSubview(plusButton)
+            
+            imagesStackView.widthAnchor.constraint(equalTo: label.widthAnchor).isActive = true
+            horizontalStackView.widthAnchor.constraint(equalTo: label.widthAnchor).isActive = true
+            
+            minusButton.onClick = { [weak self] in
+                self?.removeSpyImage()
+            }
+            
+            plusButton.onClick = { [weak self] in
+                self?.addSpyImage()
+            }
+            
+            updateButtonStates()
         }
-    }
-    
-    // MARK: - Icon Management
-    
-    /// Removes the last icon from the specified player group
-    /// - Parameters:
-    ///   - group: The player group to remove from
-    ///   - animated: Whether to animate the removal
-    func removeLastIcon(from group: PlayerGroup, animated: Bool) {
-        guard let lastImageView = group.imageViews.popLast() else { return }
         
-        // Calculate new size for remaining icons
-        let count = CGFloat(group.imageViews.count)
-        let newSize = min(Constants.initialIconSize * (4.0 / count), Constants.initialIconSize)
+        private func createSpyImages() {
+            for _ in 0..<minSpyCount {
+                addSpyImage(animated: false)
+            }
+        }
         
-        if animated {
-            UIView.animate(withDuration: Constants.animationDuration, animations: {
-                lastImageView.alpha = 0
-                lastImageView.transform = CGAffineTransform(scaleX: 0.5, y: 0.5)
-            }) { [weak self] _ in
-                lastImageView.removeFromSuperview()
-                // Update remaining icons
-                group.imageViews.forEach { imageView in
-                    self?.updateIconConstraints(imageView, size: newSize)
-                    self?.updateIconAppearance(imageView, size: newSize, count: Int(count))
+        private func createSpyImageView() -> UIImageView {
+            let imageView = UIImageView()
+            imageView.contentMode = .scaleAspectFit
+            imageView.translatesAutoresizingMaskIntoConstraints = false
+            imageView.setContentHuggingPriority(.defaultLow, for: .horizontal)
+            imageView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+            
+            imageView.heightAnchor.constraint(lessThanOrEqualToConstant: Constants.maxIconSize).isActive = true
+            imageView.widthAnchor.constraint(lessThanOrEqualToConstant: Constants.maxIconSize).isActive = true
+            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor).isActive = true
+            
+            return imageView
+        }
+        
+        private func updateImageIcon(_ imageView: UIImageView, shouldUseCircle: Bool) {
+            imageView.image = shouldUseCircle ? 
+                UIImage(systemName: "circle.fill")?.withTintColor(.white, renderingMode: .alwaysOriginal) :
+                UIImage(named: "spy-w")
+        }
+        
+        private func updateAllImages(completion: (() -> Void)? = nil) {
+            let shouldUseCircle = imageViews.count > Constants.iconThreshold
+            let totalDuration = Double(imageViews.count) * Constants.waveDelay + Constants.animationDuration
+            
+            for (index, imageView) in imageViews.enumerated() {
+                let delay = Double(index) * Constants.waveDelay
+                
+                UIView.animate(withDuration: Constants.animationDuration,
+                             delay: delay,
+                             options: .curveEaseInOut) {
+                    imageView.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
+                } completion: { _ in
+                    UIView.animate(withDuration: Constants.animationDuration,
+                                 delay: 0,
+                                 options: .curveEaseInOut) {
+                        imageView.transform = .identity
+                    }
+                }
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                    UIView.transition(with: imageView,
+                                    duration: Constants.animationDuration,
+                                    options: .transitionCrossDissolve,
+                                    animations: {
+                        self.updateImageIcon(imageView, shouldUseCircle: shouldUseCircle)
+                    })
                 }
             }
-        } else {
-            lastImageView.removeFromSuperview()
-            // Update remaining icons
-            group.imageViews.forEach { imageView in
-                updateIconConstraints(imageView, size: newSize)
-                updateIconAppearance(imageView, size: newSize, count: Int(count))
+            
+            if let completion = completion {
+                DispatchQueue.main.asyncAfter(deadline: .now() + totalDuration) {
+                    completion()
+                }
             }
         }
-    }
-    
-    /// Adds a new icon to the specified player group
-    /// - Parameter group: The player group to add to
-    func addNewIcon(to group: PlayerGroup) {
-        let newImageView = createIconImageView()
-        configureNewIcon(newImageView, for: group)
-        animateNewIcon(newImageView)
-    }
-    
-    // MARK: - Private Helper Methods
-    
-    /// Creates a new image view configured for player icons
-    private func createIconImageView() -> UIImageView {
-        let imageView = UIImageView(image: UIImage(named: "spy-w"))
-        imageView.contentMode = .scaleAspectFit
-        imageView.tintColor = .systemBlue
-        imageView.frame.size = CGSize(width: 5, height: 5)
-        imageView.alpha = 0
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        return imageView
-    }
-    
-    /// Configures a new icon with proper constraints and animation setup
-    /// - Parameters:
-    ///   - imageView: The image view to configure
-    ///   - group: The group the icon belongs to
-    private func configureNewIcon(_ imageView: UIImageView, for group: PlayerGroup) {
-        // Calculate size based on new total count
-        let count = CGFloat(group.imageViews.count + 1)
-        let newSize = min(Constants.initialIconSize * (3.0 / count), Constants.initialIconSize)
-//        let newSize = Constants.initialIconSize * (4.0 / count)
-//        let newSize = CGFloat(20)
-        let stackWidth = group.spacerView.bounds.width
-        print("Stack View Width: \(stackWidth)")
         
-        
-        // Update all existing icons to new size
-        group.imageViews.forEach { existingIcon in
-            updateIconConstraints(existingIcon, size: newSize)
-            updateIconAppearance(existingIcon, size: newSize, count: Int(count))
+        private func addSpyImage(animated: Bool = true) {
+            guard imageViews.count < maxSpyCount else { return }
+            
+            let willCrossThreshold = imageViews.count + 1 > Constants.iconThreshold
+            let isAlreadyPastThreshold = imageViews.count > Constants.iconThreshold
+            
+            if animated {
+                let imageView = createSpyImageView()
+                updateImageIcon(imageView, shouldUseCircle: isAlreadyPastThreshold)
+                
+                imageView.alpha = 0
+                imageView.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
+                
+                imagesStackView.addArrangedSubview(imageView)
+                imageViews.append(imageView)
+                
+                UIView.animate(withDuration: Constants.animationDuration * 0.6,
+                             delay: 0,
+                             usingSpringWithDamping: 0.55,
+                             initialSpringVelocity: 0.3,
+                             options: .curveEaseOut,
+                             animations: {
+                    imageView.alpha = 1
+                    imageView.transform = CGAffineTransform(scaleX: 1.15, y: 1.15)
+                }) { _ in
+                    UIView.animate(withDuration: Constants.animationDuration * 0.4,
+                                 delay: 0,
+                                 usingSpringWithDamping: 0.7,
+                                 initialSpringVelocity: 0.2,
+                                 options: .curveEaseOut,
+                                 animations: {
+                        imageView.transform = .identity
+                    }) { [weak self] _ in
+                        if willCrossThreshold && !isAlreadyPastThreshold {
+                            self?.updateAllImages()
+                        }
+                        self?.updateButtonStates()
+                    }
+                }
+            } else {
+                let imageView = createSpyImageView()
+                updateImageIcon(imageView, shouldUseCircle: isAlreadyPastThreshold)
+                imagesStackView.addArrangedSubview(imageView)
+                imageViews.append(imageView)
+                
+                if willCrossThreshold && !isAlreadyPastThreshold {
+                    updateAllImages()
+                }
+                updateButtonStates()
+            }
         }
         
-        // Configure new icon
-        NSLayoutConstraint.activate([
-            imageView.widthAnchor.constraint(equalToConstant: newSize),
-            imageView.heightAnchor.constraint(equalToConstant: newSize)
-        ])
-        
-        let containerWidth = group.stackView.bounds.width
-        let yOffset = group.imageViews.first?.frame.minY ?? group.stackView.bounds.height / 2
-        imageView.transform = CGAffineTransform(translationX: containerWidth / 10, y: yOffset)
-        
-        // Add to data structures
-        group.imageViews.append(imageView)
-        
-        // Add to UI
-        let insertIndex = group.stackView.arrangedSubviews.count - 1
-        group.stackView.insertArrangedSubview(imageView, at: insertIndex)
-        
-        // Update appearance of new icon
-        updateIconAppearance(imageView, size: newSize, count: Int(count))
-    }
-    
-    /// Animates a new icon's appearance with fade and transform effects
-    /// - Parameter imageView: The image view to animate
-    private func animateNewIcon(_ imageView: UIImageView) {
-        UIView.animate(withDuration: Constants.animationDuration,
-                      delay: 0,
-                      options: .curveEaseOut,
-                      animations: {
-            imageView.transform = .identity
-        }) { _ in
-            UIView.animate(withDuration: Constants.fadeInDuration,
-                         delay: 0,
-                         options: .curveLinear,
-                         animations: {
-                imageView.alpha = 1
-            })
+        private func removeSpyImage(animated: Bool = true) {
+            guard imageViews.count > minSpyCount else { return }
+            guard let lastImageView = imageViews.last else { return }
+            
+            let willCrossThreshold = imageViews.count == Constants.iconThreshold + 1
+            
+            if animated {
+                UIView.animate(withDuration: Constants.animationDuration * 0.5,
+                             delay: 0,
+                             usingSpringWithDamping: 0.6,
+                             initialSpringVelocity: 0.3,
+                             options: .curveEaseOut,
+                             animations: {
+                    lastImageView.transform = CGAffineTransform(scaleX: 1.15, y: 1.15)
+                }) { _ in
+                    UIView.animate(withDuration: Constants.animationDuration * 0.5,
+                                 delay: 0,
+                                 options: [.curveEaseIn],
+                                 animations: {
+                        lastImageView.alpha = 0
+                        lastImageView.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
+                    }) { [weak self] _ in
+                        lastImageView.removeFromSuperview()
+                        self?.imageViews.removeLast()
+                        
+                        if willCrossThreshold {
+                            self?.updateAllImages()
+                        }
+                        self?.updateButtonStates()
+                    }
+                }
+            } else {
+                lastImageView.removeFromSuperview()
+                imageViews.removeLast()
+                if willCrossThreshold {
+                    updateAllImages()
+                }
+                updateButtonStates()
+            }
         }
-    }
-    
-    /// Updates the constraints for an individual icon
-    /// - Parameters:
-    ///   - imageView: The image view to update
-    ///   - size: The new size for the icon
-    private func updateIconConstraints(_ imageView: UIImageView, size: CGFloat) {
-        NSLayoutConstraint.deactivate(imageView.constraints)
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            imageView.widthAnchor.constraint(equalToConstant: size),
-            imageView.heightAnchor.constraint(equalToConstant: size)
-        ])
-    }
-    
-    /// Updates the appearance of an icon based on the total count
-    /// - Parameters:
-    ///   - imageView: The image view to update
-    ///   - size: The base size for the icon
-    ///   - count: The total number of icons in the group
-    private func updateIconAppearance(_ imageView: UIImageView, size: CGFloat, count: Int) {
-        if count > Constants.maxPlayerCount {
-            let circleSize = size * 0.7 // Make circles 70% the size of spy icons
-            imageView.layer.cornerRadius = circleSize / 2
-            imageView.clipsToBounds = true
-            imageView.tintColor = .white
-            imageView.image = UIImage(systemName: "circle.fill")
+        
+        private func updateButtonStates() {
+            let currentCount = imageViews.count
             
-            // Update constraints for the smaller circle size
-            NSLayoutConstraint.deactivate(imageView.constraints)
-            NSLayoutConstraint.activate([
-                imageView.widthAnchor.constraint(equalToConstant: circleSize),
-                imageView.heightAnchor.constraint(equalToConstant: circleSize)
-            ])
-        } else {
-            imageView.layer.cornerRadius = 0
-            imageView.image = UIImage(named: "spy-w")
-            
-            // Keep original size for spy icons
-            NSLayoutConstraint.deactivate(imageView.constraints)
-            NSLayoutConstraint.activate([
-                imageView.widthAnchor.constraint(equalToConstant: size),
-                imageView.heightAnchor.constraint(equalToConstant: size)
-            ])
+            updateButton(minusButton, isEnabled: currentCount > minSpyCount)
+            updateButton(plusButton, isEnabled: currentCount < maxSpyCount)
+        }
+        
+        private func updateButton(_ button: CustomGradientButton, isEnabled: Bool) {
+            if isEnabled {
+                button.setStatus(buttonColor == .red ? .activeRed : .activeBlue)
+                button.isUserInteractionEnabled = true
+            } else {
+                button.setStatus(.deactive)
+                button.isUserInteractionEnabled = false
+            }
         }
     }
 }

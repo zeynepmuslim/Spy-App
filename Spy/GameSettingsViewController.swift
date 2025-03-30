@@ -1,215 +1,255 @@
-import UIKit
 import SwiftUI
-
-/// A view controller that manages game settings and player configuration.
-/// This class handles the UI for setting up players and spies before starting the game.
+import UIKit
 class GameSettingsViewController: UIViewController {
-    
-    /// Constants used throughout the view controller
+
     private enum Constants {
-        static let bigMargin: CGFloat = 20         // Large margin for main UI elements
-        static let littleMargin: CGFloat = 5       // Small margin for minor spacing
-        static let buttonsHeight: CGFloat = 40     // Height of control buttons
-        static let initialIconSize: CGFloat = 50   // Initial size of player icons
-        static let maxPlayerCount: Int = 6         // Maximum number of regular players
-        static let animationDuration: TimeInterval = 0.3  // Duration for main animations
-        static let fadeInDuration: TimeInterval = 0.15    // Duration for fade effects
-        static let iconSpacing: CGFloat = 8        // Space between player icons
+        static let bigMargin: CGFloat = 20
+        static let littleMargin: CGFloat = 5
+        static let buttonsHeight: CGFloat = 40
+        static let maxPlayerCount: Int = 6
     }
-    
-    // MARK: - Properties
-    
-    /// Scrollable view containing the player configuration UI
+
     private let bottomView = CustomDarkScrollView()
-    
-    /// Manager handling player groups and their UI
-    private let playerManager = PlayerGroupManager()
-    
-    /// Collection of player groups (regular players and spies)
     private var playerGroups: [PlayerGroupManager.PlayerGroup] = []
     
-    /// UI Controls
-    private lazy var backButton = BackButton(target: self, action: #selector(customBackAction))
+    private var civilGroup: PlayerGroupManager.PlayerGroup? {
+        playerGroups.first
+    }
+    
+    private var spyGroup: PlayerGroupManager.PlayerGroup? {
+        playerGroups.last
+    }
+
+    private lazy var backButton = BackButton(
+        target: self, action: #selector(customBackAction))
     private lazy var startButton = createStartButton()
     private lazy var customizeButton = createCustomizeButton()
     private lazy var gradientView = GradientView(superView: view)
-    
-    // MARK: - Lifecycle Methods
-    
-    /// Sets up the initial UI state when the view loads
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupPlayerGroups()
         setupInitialUI()
         setupConstraints()
-        addInitialPlayers()
     }
     
-    // MARK: - Private Setup Methods
-    
-    /// Initializes player groups for regular players and spies
     private func setupPlayerGroups() {
+        let updateButtons = { [weak self] in
+            guard let self = self else { return }
+            self.updateButtonStates()
+        }
+        
         playerGroups = [
             PlayerGroupManager.PlayerGroup(
                 title: "Oyuncu Sayısı",
                 target: self,
                 index: 0,
-                onRemove: { [weak self] in
-                    guard let self = self else { return }
-                    self.playerManager.removeLastIcon(from: self.playerGroups[0], animated: true)
-                },
-                onAdd: { [weak self] in
-                    guard let self = self else { return }
-                    self.playerManager.addNewIcon(to: self.playerGroups[0])
-                }
-                
+                onRemove: updateButtons,
+                onAdd: updateButtons,
+                minSpyCount: 3,
+                maxSpyCount: 10
             ),
             PlayerGroupManager.PlayerGroup(
                 title: "Casus Sayısı",
                 target: self,
                 index: 1,
-                onRemove: { [weak self] in
-                    guard let self = self else { return }
-                    self.playerManager.removeLastIcon(from: self.playerGroups[1], animated: true)
-                },
-                onAdd: { [weak self] in
-                    guard let self = self else { return }
-                    self.playerManager.addNewIcon(to: self.playerGroups[1])
-                },
+                onRemove: updateButtons,
+                onAdd: updateButtons,
                 buttonColor: .red,
-                buttonShadow: .red
-            )
+                buttonShadow: .red,
+                minSpyCount: 1,
+                maxSpyCount: 3
+            ),
         ]
     }
     
-    /// Sets up the initial UI layout and hierarchy
-    private func setupInitialUI() {
-        [gradientView, backButton, bottomView, startButton].forEach { view.addSubview($0) }
+    private func updateButtonStates() {
+        guard let civilGroup = civilGroup, let spyGroup = spyGroup else { return }
         
-        // Setup each player group
-        var previousGroup: PlayerGroupManager.PlayerGroup?
-        playerGroups.forEach { group in
-            bottomView.addSubview(group.label)
-            bottomView.addSubview(group.stackView)
-            bottomView.addSubview(group.minusButton)
-            bottomView.addSubview(group.plusButton)
-            
-            if let previous = previousGroup {
-                // Setup constraints relative to previous group
-                NSLayoutConstraint.activate([
-                    group.label.topAnchor.constraint(equalTo: previous.stackView.bottomAnchor, constant: Constants.bigMargin),
-                    group.stackView.topAnchor.constraint(equalTo: group.label.bottomAnchor, constant: Constants.littleMargin)
-                ])
-            } else {
-                // First group constraints
-                NSLayoutConstraint.activate([
-                    group.label.topAnchor.constraint(equalTo: bottomView.topAnchor, constant: Constants.bigMargin),
-                    group.stackView.topAnchor.constraint(equalTo: group.label.bottomAnchor, constant: Constants.littleMargin)
-                ])
-            }
-            
-            // Common constraints for each group
-            NSLayoutConstraint.activate([
-                group.label.leadingAnchor.constraint(equalTo: bottomView.leadingAnchor, constant: Constants.bigMargin),
-                group.label.heightAnchor.constraint(equalToConstant: Constants.buttonsHeight),
-                group.label.trailingAnchor.constraint(equalTo: group.minusButton.leadingAnchor, constant: -Constants.bigMargin),
-                
-                group.stackView.trailingAnchor.constraint(equalTo: group.minusButton.leadingAnchor, constant: -Constants.littleMargin),
-                group.stackView.heightAnchor.constraint(equalToConstant: Constants.buttonsHeight),
-                group.stackView.leadingAnchor.constraint(equalTo: bottomView.leadingAnchor, constant: Constants.bigMargin),
-                
-                // Control buttons
-                group.minusButton.trailingAnchor.constraint(equalTo: group.plusButton.leadingAnchor, constant: -8),
-                group.plusButton.trailingAnchor.constraint(equalTo: bottomView.trailingAnchor, constant: -Constants.bigMargin),
-                group.minusButton.widthAnchor.constraint(equalToConstant: Constants.buttonsHeight),
-                group.plusButton.widthAnchor.constraint(equalToConstant: Constants.buttonsHeight),
-            ])
-            
-            // Different vertical alignment for each group
-            if group === playerGroups[0] {
-                // First group - buttons centered with label
-                NSLayoutConstraint.activate([
-                    group.minusButton.centerYAnchor.constraint(equalTo: group.label.centerYAnchor),
-                    group.plusButton.centerYAnchor.constraint(equalTo: group.label.centerYAnchor)
-                ])
-            } else {
-                // Second group - buttons centered with stack view
-                NSLayoutConstraint.activate([
-                    group.minusButton.centerYAnchor.constraint(equalTo: group.stackView.centerYAnchor, constant: -Constants.bigMargin),
-                    group.plusButton.centerYAnchor.constraint(equalTo: group.stackView.centerYAnchor, constant: -Constants.bigMargin)
-                ])
-            }
-            
-            previousGroup = group
+        let playerCount = civilGroup.imageViews.count
+        let spyCount = spyGroup.imageViews.count
+        
+        updateGroupButtonStates(group: spyGroup, count: spyCount, isSpyGroup: true)
+        updateGroupButtonStates(group: civilGroup, count: playerCount, isSpyGroup: false)
+    }
+    
+    private func updateGroupButtonStates(group: PlayerGroupManager.PlayerGroup, count: Int, isSpyGroup: Bool) {
+        let activeStatus: ButtonStatus = isSpyGroup ? .activeRed : .activeBlue
+        
+        if count >= group.maxSpyCount {
+            group.plusButton.setStatus(.deactive)
+            group.plusButton.isUserInteractionEnabled = false
+        } else {
+            group.plusButton.setStatus(activeStatus)
+            group.plusButton.isUserInteractionEnabled = true
         }
         
+        if count <= group.minSpyCount {
+            group.minusButton.setStatus(.deactive)
+            group.minusButton.isUserInteractionEnabled = false
+        } else {
+            group.minusButton.setStatus(activeStatus)
+            group.minusButton.isUserInteractionEnabled = true
+        }
+    }
+    
+    private func setupInitialUI() {
+        [gradientView, backButton, bottomView, startButton].forEach {
+            view.addSubview($0)
+        }
+
+        var previousGroup: PlayerGroupManager.PlayerGroup?
+        playerGroups.forEach { group in
+            addGroupToView(group, previousGroup: previousGroup)
+            previousGroup = group
+        }
+
         bottomView.addSubview(customizeButton)
     }
     
-    /// Creates and configures the start game button
-    private func createStartButton() -> CustomGradientButton {
-        let button = CustomGradientButton(labelText: "Oyna", width: 100, height: 60)
-        button.onClick = { [weak self] in
-            guard let self = self else { return }
-            self.performSegue(withIdentifier: "gameSettingsToCards", sender: self)
-        }
-        return button
-    }
-    
-    /// Creates and configures the customize button
-    private func createCustomizeButton() -> CustomGradientButton {
-        return CustomGradientButton(labelText: "Özelleştir", width: 200, height: Constants.buttonsHeight)
-    }
-    
-    /// Adds initial players to both groups
-    private func addInitialPlayers() {
-        // Add initial regular players
-        for _ in 0..<3 {
-            playerManager.addNewIcon(to: playerGroups[0])
+    private func addGroupToView(_ group: PlayerGroupManager.PlayerGroup, previousGroup: PlayerGroupManager.PlayerGroup?) {
+        [group.label, group.stackView, group.minusButton, group.plusButton].forEach {
+            bottomView.addSubview($0)
         }
         
-        // Add initial spy
-        playerManager.addNewIcon(to: playerGroups[1])
+        setupGroupConstraints(group, previousGroup: previousGroup)
     }
     
-    /// Sets up Auto Layout constraints for all UI elements
-    private func setupConstraints() {
+    private func setupGroupConstraints(_ group: PlayerGroupManager.PlayerGroup, previousGroup: PlayerGroupManager.PlayerGroup?) {
+        if let previous = previousGroup {
+            NSLayoutConstraint.activate([
+                group.label.topAnchor.constraint(
+                    equalTo: previous.stackView.bottomAnchor,
+                    constant: Constants.littleMargin),
+                group.stackView.topAnchor.constraint(
+                    equalTo: group.label.bottomAnchor,
+                    constant: Constants.littleMargin),
+            ])
+        } else {
+            NSLayoutConstraint.activate([
+                group.label.topAnchor.constraint(
+                    equalTo: bottomView.topAnchor,
+                    constant: Constants.bigMargin),
+                group.stackView.topAnchor.constraint(
+                    equalTo: group.label.bottomAnchor,
+                    constant: Constants.littleMargin),
+            ])
+        }
+
+        setupGroupHorizontalConstraints(group)
+        setupGroupVerticalConstraints(group)
+    }
+    
+    private func setupGroupHorizontalConstraints(_ group: PlayerGroupManager.PlayerGroup) {
         NSLayoutConstraint.activate([
-            // Back Button
-            backButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
-            backButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            backButton.widthAnchor.constraint(equalToConstant: 40),
-            backButton.heightAnchor.constraint(equalToConstant: 40),
-            
-            // Bottom View
-            bottomView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.bigMargin),
-            bottomView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.bigMargin),
-            bottomView.bottomAnchor.constraint(equalTo: startButton.topAnchor, constant: -20),
-            bottomView.topAnchor.constraint(equalTo: backButton.bottomAnchor, constant: 10),
-            
-            // Start Button
-            startButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.bigMargin),
-            startButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.bigMargin),
-            startButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            
-            // Customize Button - Positioned below the first minus button
-            customizeButton.topAnchor.constraint(equalTo: playerGroups[0].minusButton.bottomAnchor, constant: Constants.littleMargin),
-            customizeButton.leadingAnchor.constraint(equalTo: playerGroups[0].minusButton.leadingAnchor),
-            customizeButton.trailingAnchor.constraint(equalTo: playerGroups[0].plusButton.trailingAnchor)
+            group.label.leadingAnchor.constraint(
+                equalTo: bottomView.leadingAnchor,
+                constant: Constants.bigMargin),
+            group.label.heightAnchor.constraint(
+                equalToConstant: Constants.buttonsHeight),
+            group.label.trailingAnchor.constraint(
+                equalTo: group.minusButton.leadingAnchor,
+                constant: -Constants.bigMargin),
+
+            group.stackView.trailingAnchor.constraint(
+                equalTo: group.minusButton.leadingAnchor,
+                constant: -Constants.littleMargin),
+            group.stackView.heightAnchor.constraint(
+                equalToConstant: Constants.buttonsHeight),
+            group.stackView.leadingAnchor.constraint(
+                equalTo: bottomView.leadingAnchor,
+                constant: Constants.bigMargin),
+
+            group.minusButton.trailingAnchor.constraint(
+                equalTo: group.plusButton.leadingAnchor, constant: -8),
+            group.plusButton.trailingAnchor.constraint(
+                equalTo: bottomView.trailingAnchor,
+                constant: -Constants.bigMargin),
+            group.minusButton.widthAnchor.constraint(
+                equalToConstant: Constants.buttonsHeight),
+            group.plusButton.widthAnchor.constraint(
+                equalToConstant: Constants.buttonsHeight),
         ])
     }
     
-    // MARK: - Actions
-    
-    /// Handles the back button action
+    private func setupGroupVerticalConstraints(_ group: PlayerGroupManager.PlayerGroup) {
+        if group === civilGroup {
+            NSLayoutConstraint.activate([
+                group.minusButton.centerYAnchor.constraint(
+                    equalTo: group.label.centerYAnchor),
+                group.plusButton.centerYAnchor.constraint(
+                    equalTo: group.label.centerYAnchor),
+            ])
+        } else {
+            NSLayoutConstraint.activate([
+                group.minusButton.centerYAnchor.constraint(
+                    equalTo: group.stackView.centerYAnchor,
+                    constant: -Constants.bigMargin),
+                group.plusButton.centerYAnchor.constraint(
+                    equalTo: group.stackView.centerYAnchor,
+                    constant: -Constants.bigMargin),
+            ])
+        }
+    }
+
+    private func createStartButton() -> CustomGradientButton {
+        let button = CustomGradientButton(
+            labelText: "Oyna", width: 100, height: 60)
+        button.onClick = { [weak self] in
+            guard let self = self else { return }
+            self.performSegue(
+                withIdentifier: "gameSettingsToCards", sender: self)
+        }
+        return button
+    }
+
+    private func createCustomizeButton() -> CustomGradientButton {
+        return CustomGradientButton(
+            labelText: "Özelleştir", width: 200, height: Constants.buttonsHeight
+        )
+    }
+
+    private func setupConstraints() {
+        NSLayoutConstraint.activate([
+            backButton.leadingAnchor.constraint(
+                equalTo: view.leadingAnchor, constant: 8),
+            backButton.topAnchor.constraint(
+                equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            backButton.widthAnchor.constraint(equalToConstant: 40),
+            backButton.heightAnchor.constraint(equalToConstant: 40),
+
+            bottomView.leadingAnchor.constraint(
+                equalTo: view.leadingAnchor, constant: Constants.bigMargin),
+            bottomView.trailingAnchor.constraint(
+                equalTo: view.trailingAnchor, constant: -Constants.bigMargin),
+            bottomView.bottomAnchor.constraint(
+                equalTo: startButton.topAnchor, constant: -20),
+            bottomView.topAnchor.constraint(
+                equalTo: backButton.bottomAnchor, constant: 10),
+
+            startButton.leadingAnchor.constraint(
+                equalTo: view.leadingAnchor, constant: Constants.bigMargin),
+            startButton.trailingAnchor.constraint(
+                equalTo: view.trailingAnchor, constant: -Constants.bigMargin),
+            startButton.bottomAnchor.constraint(
+                equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+
+            customizeButton.topAnchor.constraint(
+                equalTo: civilGroup?.minusButton.bottomAnchor ?? bottomView.topAnchor,
+                constant: Constants.littleMargin),
+            customizeButton.leadingAnchor.constraint(
+                equalTo: civilGroup?.minusButton.leadingAnchor ?? bottomView.leadingAnchor),
+            customizeButton.trailingAnchor.constraint(
+                equalTo: civilGroup?.plusButton.trailingAnchor ?? bottomView.trailingAnchor),
+        ])
+    }
+
     @objc private func customBackAction() {
         dismiss(animated: true)
         navigationController?.popViewController(animated: true)
     }
 }
 
-// MARK: - SwiftUI Preview
-/// Provides a SwiftUI preview for the GameSettingsViewController
 struct ViewController_Previews: PreviewProvider {
     static var previews: some View {
         ViewControllerPreview {
@@ -217,5 +257,3 @@ struct ViewController_Previews: PreviewProvider {
         }
     }
 }
-
-
