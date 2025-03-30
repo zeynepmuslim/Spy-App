@@ -62,6 +62,7 @@ class GameSettingsViewController: UIViewController {
                     guard let self = self else { return }
                     self.playerManager.addNewIcon(to: self.playerGroups[0])
                 }
+                
             ),
             PlayerGroupManager.PlayerGroup(
                 title: "Casus Sayısı",
@@ -74,7 +75,9 @@ class GameSettingsViewController: UIViewController {
                 onAdd: { [weak self] in
                     guard let self = self else { return }
                     self.playerManager.addNewIcon(to: self.playerGroups[1])
-                }
+                },
+                buttonColor: .red,
+                buttonShadow: .red
             )
         ]
     }
@@ -116,12 +119,26 @@ class GameSettingsViewController: UIViewController {
                 group.stackView.leadingAnchor.constraint(equalTo: bottomView.leadingAnchor, constant: Constants.bigMargin),
                 
                 // Control buttons
-                group.minusButton.centerYAnchor.constraint(equalTo: group.label.centerYAnchor),
                 group.minusButton.trailingAnchor.constraint(equalTo: group.plusButton.leadingAnchor, constant: -8),
-                
-                group.plusButton.centerYAnchor.constraint(equalTo: group.label.centerYAnchor),
-                group.plusButton.trailingAnchor.constraint(equalTo: bottomView.trailingAnchor, constant: -Constants.bigMargin)
+                group.plusButton.trailingAnchor.constraint(equalTo: bottomView.trailingAnchor, constant: -Constants.bigMargin),
+                group.minusButton.widthAnchor.constraint(equalToConstant: Constants.buttonsHeight),
+                group.plusButton.widthAnchor.constraint(equalToConstant: Constants.buttonsHeight),
             ])
+            
+            // Different vertical alignment for each group
+            if group === playerGroups[0] {
+                // First group - buttons centered with label
+                NSLayoutConstraint.activate([
+                    group.minusButton.centerYAnchor.constraint(equalTo: group.label.centerYAnchor),
+                    group.plusButton.centerYAnchor.constraint(equalTo: group.label.centerYAnchor)
+                ])
+            } else {
+                // Second group - buttons centered with stack view
+                NSLayoutConstraint.activate([
+                    group.minusButton.centerYAnchor.constraint(equalTo: group.stackView.centerYAnchor, constant: -Constants.bigMargin),
+                    group.plusButton.centerYAnchor.constraint(equalTo: group.stackView.centerYAnchor, constant: -Constants.bigMargin)
+                ])
+            }
             
             previousGroup = group
         }
@@ -200,3 +217,5 @@ struct ViewController_Previews: PreviewProvider {
         }
     }
 }
+
+

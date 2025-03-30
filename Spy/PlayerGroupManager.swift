@@ -1,26 +1,24 @@
 import UIKit
 import SwiftUI
 
-/// Manages the player groups and their associated UI elements in the game settings
 class PlayerGroupManager {
-    /// Constants used throughout the PlayerGroupManager
     private enum Constants {
-        static let iconSpacing: CGFloat = 8        // Space between icons in the stack view
-        static let buttonsHeight: CGFloat = 40     // Height of the plus/minus buttons
-        static let initialIconSize: CGFloat = 50   // Initial size of player icons
-        static let maxPlayerCount: Int = 6         // Maximum number of players before switching to circle icons
-        static let animationDuration: TimeInterval = 0.3  // Duration for main animations
-        static let fadeInDuration: TimeInterval = 0.15    // Duration for fade-in effects
+        static let iconSpacing: CGFloat = 8
+        static let buttonsHeight: CGFloat = 40
+        static let initialIconSize: CGFloat = 50
+        static let maxPlayerCount: Int = 6
+        static let animationDuration: TimeInterval = 0.3
+        static let fadeInDuration: TimeInterval = 0.15
+        static let titleSize: CGFloat = 18
     }
     
-    /// Represents a group of players with their associated UI elements
     class PlayerGroup {
         let stackView: UIStackView           // Contains the player icons
         var imageViews: [UIImageView]        // Collection of player icons
         let label: UILabel                   // Title label for the group
         let minusButton: CustomGradientButton // Button to remove players
         let plusButton: CustomGradientButton  // Button to add players
-        private let spacerView: UIView       // Spacer for alignment purposes
+        let spacerView: UIView       // Spacer for alignment purposes
         
         /// Initializes a new player group with the specified configuration
         /// - Parameters:
@@ -29,7 +27,7 @@ class PlayerGroupManager {
         ///   - index: The index of this group in the collection
         ///   - onRemove: Callback for player removal
         ///   - onAdd: Callback for player addition
-        init(title: String, target: UIViewController, index: Int, onRemove: @escaping () -> Void, onAdd: @escaping () -> Void) {
+        init(title: String, target: UIViewController, index: Int, onRemove: @escaping () -> Void, onAdd: @escaping () -> Void, buttonColor : GradientColor = .blue, buttonShadow: ShadowColor = .blue) {
             stackView = {
                 let stack = UIStackView()
                 stack.axis = .horizontal
@@ -54,20 +52,20 @@ class PlayerGroupManager {
                 let label = UILabel()
                 label.text = title
                 label.textColor = .white
-                label.font = UIFont.boldSystemFont(ofSize: 16)
+                label.font = UIFont.boldSystemFont(ofSize: Constants.titleSize)
                 label.translatesAutoresizingMaskIntoConstraints = false
                 return label
             }()
             
             minusButton = {
-                let button = CustomGradientButton(labelText: "-", width: Constants.buttonsHeight, height: Constants.buttonsHeight)
+                let button = CustomGradientButton(labelText: "-", gradientColor: buttonColor, width: Constants.buttonsHeight, height: Constants.buttonsHeight, shadowColor: buttonShadow)
                 button.onClick = onRemove
                 button.translatesAutoresizingMaskIntoConstraints = false
                 return button
             }()
             
             plusButton = {
-                let button = CustomGradientButton(labelText: "+", width: Constants.buttonsHeight, height: Constants.buttonsHeight)
+                let button = CustomGradientButton(labelText: "+", gradientColor: buttonColor, width: Constants.buttonsHeight, height: Constants.buttonsHeight, shadowColor: buttonShadow)
                 button.onClick = onAdd
                 button.translatesAutoresizingMaskIntoConstraints = false
                 return button
@@ -91,17 +89,29 @@ class PlayerGroupManager {
     func removeLastIcon(from group: PlayerGroup, animated: Bool) {
         guard let lastImageView = group.imageViews.popLast() else { return }
         
+        // Calculate new size for remaining icons
+        let count = CGFloat(group.imageViews.count)
+        let newSize = min(Constants.initialIconSize * (4.0 / count), Constants.initialIconSize)
+        
         if animated {
             UIView.animate(withDuration: Constants.animationDuration, animations: {
                 lastImageView.alpha = 0
                 lastImageView.transform = CGAffineTransform(scaleX: 0.5, y: 0.5)
             }) { [weak self] _ in
                 lastImageView.removeFromSuperview()
-                self?.adjustIconSizes(for: group, animated: true)
+                // Update remaining icons
+                group.imageViews.forEach { imageView in
+                    self?.updateIconConstraints(imageView, size: newSize)
+                    self?.updateIconAppearance(imageView, size: newSize, count: Int(count))
+                }
             }
         } else {
             lastImageView.removeFromSuperview()
-            adjustIconSizes(for: group, animated: false)
+            // Update remaining icons
+            group.imageViews.forEach { imageView in
+                updateIconConstraints(imageView, size: newSize)
+                updateIconAppearance(imageView, size: newSize, count: Int(count))
+            }
         }
     }
     
@@ -131,9 +141,22 @@ class PlayerGroupManager {
     ///   - imageView: The image view to configure
     ///   - group: The group the icon belongs to
     private func configureNewIcon(_ imageView: UIImageView, for group: PlayerGroup) {
+        // Calculate size based on new total count
         let count = CGFloat(group.imageViews.count + 1)
         let newSize = min(Constants.initialIconSize * (3.0 / count), Constants.initialIconSize)
+//        let newSize = Constants.initialIconSize * (4.0 / count)
+//        let newSize = CGFloat(20)
+        let stackWidth = group.spacerView.bounds.width
+        print("Stack View Width: \(stackWidth)")
         
+        
+        // Update all existing icons to new size
+        group.imageViews.forEach { existingIcon in
+            updateIconConstraints(existingIcon, size: newSize)
+            updateIconAppearance(existingIcon, size: newSize, count: Int(count))
+        }
+        
+        // Configure new icon
         NSLayoutConstraint.activate([
             imageView.widthAnchor.constraint(equalToConstant: newSize),
             imageView.heightAnchor.constraint(equalToConstant: newSize)
@@ -143,13 +166,15 @@ class PlayerGroupManager {
         let yOffset = group.imageViews.first?.frame.minY ?? group.stackView.bounds.height / 2
         imageView.transform = CGAffineTransform(translationX: containerWidth / 10, y: yOffset)
         
+        // Add to data structures
         group.imageViews.append(imageView)
         
-        // Insert new icon before the spacer view for left alignment
-        let insertIndex = group.stackView.arrangedSubviews.count - 1 // Insert before spacer view
+        // Add to UI
+        let insertIndex = group.stackView.arrangedSubviews.count - 1
         group.stackView.insertArrangedSubview(imageView, at: insertIndex)
         
-        adjustIconSizes(for: group, animated: true)
+        // Update appearance of new icon
+        updateIconAppearance(imageView, size: newSize, count: Int(count))
     }
     
     /// Animates a new icon's appearance with fade and transform effects
@@ -167,33 +192,6 @@ class PlayerGroupManager {
                          animations: {
                 imageView.alpha = 1
             })
-        }
-    }
-    
-    /// Adjusts the size of all icons in a group based on the total count
-    /// - Parameters:
-    ///   - group: The group whose icons need adjustment
-    ///   - animated: Whether to animate the size changes
-    private func adjustIconSizes(for group: PlayerGroup, animated: Bool) {
-        let count = CGFloat(group.imageViews.count)
-        let newSize = min(Constants.initialIconSize * (4.0 / count), Constants.initialIconSize)
-        
-        let animationBlock = { [weak self] in
-            guard let self = self else { return }
-            group.imageViews.forEach { imageView in
-                self.updateIconConstraints(imageView, size: newSize)
-                self.updateIconAppearance(imageView, size: newSize, count: group.imageViews.count)
-            }
-            group.stackView.layoutIfNeeded()
-        }
-        
-        if animated {
-            UIView.animate(withDuration: Constants.animationDuration,
-                         delay: 0,
-                         options: .curveEaseOut,
-                         animations: animationBlock)
-        } else {
-            animationBlock()
         }
     }
     

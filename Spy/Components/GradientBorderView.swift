@@ -1,5 +1,22 @@
 import UIKit
 
+enum ShadowColor {
+      case red
+      case blue
+      case gray
+      
+      var cgColor: CGColor {
+          switch self {
+          case .red:
+              return UIColor.spyRed01.cgColor
+          case .blue:
+              return UIColor.spyBlue01.cgColor
+          case .gray:
+              return UIColor.spyGray01.cgColor
+          }
+      }
+  }
+
 class CustomGradientButton: UIView {
     var gradientColor: GradientColor
     var width: CGFloat
@@ -23,25 +40,9 @@ class CustomGradientButton: UIView {
     private var firstViewLeadingConstraint: NSLayoutConstraint!
     private var firstViewTrailingConstraint: NSLayoutConstraint!
     private var gradientAnimationBorder: AnimatedGradientView!
+    private var currentAnimator: UIViewPropertyAnimator?
     
     var onClick: (() -> Void)?
-    
-    enum ShadowColor {
-          case red
-          case blue
-          case gray
-          
-          var cgColor: CGColor {
-              switch self {
-              case .red:
-                  return UIColor.spyRed01.cgColor
-              case .blue:
-                  return UIColor.spyBlue01.cgColor
-              case .gray:
-                  return UIColor.spyGray01.cgColor
-              }
-          }
-      }
     
     init(labelText: String = "", gradientColor: GradientColor = .blue, width: CGFloat = 150, height: CGFloat = 50, innerCornerRadius: CGFloat = 8, outherCornerRadius: CGFloat = 10, shadowColor: ShadowColor = .blue, borderWidth: CGFloat = 3) {
         self.gradientColor = gradientColor
@@ -135,19 +136,32 @@ class CustomGradientButton: UIView {
     
     @objc private func handleTap() {
         print("handleTap by GradientButton")
-        AnimationHelper.animateButton(
-            firstView: self.firstView,
-            thirdView: self.thirdView,
-            firstViewTopConstraint: self.firstViewTopConstraint,
-            firstViewBottomConstraint: self.firstViewBottomConstraint,
-            firstViewLeadingConstraint: self.firstViewLeadingConstraint,
-            firstViewTrailingConstraint: self.firstViewTrailingConstraint,
-            outerCornerRadius: self.outherCornerRadius,
-            innerCornerRadius: self.innerCornerRadius,
-            borderWidth: self.borderWidth
-        )
+        
+        currentAnimator?.stopAnimation(true)
+        currentAnimator?.finishAnimation(at: .current)
+    
+        let animator = UIViewPropertyAnimator(duration: 0.3, curve: .easeInOut) {
+            AnimationHelper.animateButton(
+                firstView: self.firstView,
+                thirdView: self.thirdView,
+                firstViewTopConstraint: self.firstViewTopConstraint,
+                firstViewBottomConstraint: self.firstViewBottomConstraint,
+                firstViewLeadingConstraint: self.firstViewLeadingConstraint,
+                firstViewTrailingConstraint: self.firstViewTrailingConstraint,
+                outerCornerRadius: self.outherCornerRadius,
+                innerCornerRadius: self.innerCornerRadius,
+                borderWidth: self.borderWidth
+            )
+            self.layoutIfNeeded()
+        }
+        
+        animator.addCompletion { [weak self] _ in
+            self?.currentAnimator = nil
+        }
+        
+        currentAnimator = animator
+        animator.startAnimation()
         onClick?()
-        layoutIfNeeded()
     }
     
     private func animateLabelChange() {
