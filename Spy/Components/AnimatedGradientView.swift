@@ -78,7 +78,7 @@ class AnimatedGradientView: UIView {
         let colorAnimation = CABasicAnimation(keyPath: "colors")
         colorAnimation.fromValue = gradientLayer.colors
         colorAnimation.toValue = gradient.colors
-        colorAnimation.duration = 0.5
+        colorAnimation.duration = GeneralConstants.Animation.duration
         colorAnimation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
         
         gradientLayer.add(colorAnimation, forKey: "colorChange")

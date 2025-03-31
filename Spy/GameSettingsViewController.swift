@@ -1,22 +1,22 @@
 import SwiftUI
 import UIKit
 class GameSettingsViewController: UIViewController {
-
+ 
     private enum Constants {
-        static let bigMargin: CGFloat = 20
-        static let littleMargin: CGFloat = 5
-        static let buttonsHeight: CGFloat = 40
-        static let maxPlayerCount: Int = 6
+        static let bigMargin: CGFloat = GeneralConstants.Layout.bigMargin
+        static let littleMargin: CGFloat = GeneralConstants.Layout.littleMargin
+        static let buttonsHeight: CGFloat = GeneralConstants.Button.miniHeight
     }
 
     private let bottomView = CustomDarkScrollView()
-    private var playerGroups: [PlayerGroupManager.PlayerGroup] = []
+    private var playerGroups: [PlayerSettingsGroupManager.PlayerGroup] = []
+    private var settingsGroups: [GameSettingsGroupManager.SettingsGroup] = []
     
-    private var civilGroup: PlayerGroupManager.PlayerGroup? {
+    private var civilGroup: PlayerSettingsGroupManager.PlayerGroup? {
         playerGroups.first
     }
     
-    private var spyGroup: PlayerGroupManager.PlayerGroup? {
+    private var spyGroup: PlayerSettingsGroupManager.PlayerGroup? {
         playerGroups.last
     }
 
@@ -29,6 +29,7 @@ class GameSettingsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupPlayerGroups()
+        setupSettingsGroups()
         setupInitialUI()
         setupConstraints()
     }
@@ -40,7 +41,7 @@ class GameSettingsViewController: UIViewController {
         }
         
         playerGroups = [
-            PlayerGroupManager.PlayerGroup(
+            PlayerSettingsGroupManager.PlayerGroup(
                 title: "Oyuncu Sayısı",
                 target: self,
                 index: 0,
@@ -49,7 +50,7 @@ class GameSettingsViewController: UIViewController {
                 minSpyCount: 3,
                 maxSpyCount: 10
             ),
-            PlayerGroupManager.PlayerGroup(
+            PlayerSettingsGroupManager.PlayerGroup(
                 title: "Casus Sayısı",
                 target: self,
                 index: 1,
@@ -63,6 +64,15 @@ class GameSettingsViewController: UIViewController {
         ]
     }
     
+    private func setupSettingsGroups() {
+        settingsGroups = [
+            GameSettingsGroupManager.createCategoryGroup(target: self),
+            GameSettingsGroupManager.createRoundDurationGroup(target: self),
+            GameSettingsGroupManager.createRoundCountGroup(target: self),
+            GameSettingsGroupManager.createHintToggleGroup(target: self)
+        ]
+    }
+    
     private func updateButtonStates() {
         guard let civilGroup = civilGroup, let spyGroup = spyGroup else { return }
         
@@ -73,7 +83,7 @@ class GameSettingsViewController: UIViewController {
         updateGroupButtonStates(group: civilGroup, count: playerCount, isSpyGroup: false)
     }
     
-    private func updateGroupButtonStates(group: PlayerGroupManager.PlayerGroup, count: Int, isSpyGroup: Bool) {
+    private func updateGroupButtonStates(group: PlayerSettingsGroupManager.PlayerGroup, count: Int, isSpyGroup: Bool) {
         let activeStatus: ButtonStatus = isSpyGroup ? .activeRed : .activeBlue
         
         if count >= group.maxSpyCount {
@@ -98,16 +108,22 @@ class GameSettingsViewController: UIViewController {
             view.addSubview($0)
         }
 
-        var previousGroup: PlayerGroupManager.PlayerGroup?
+        var previousGroup: PlayerSettingsGroupManager.PlayerGroup?
         playerGroups.forEach { group in
             addGroupToView(group, previousGroup: previousGroup)
             previousGroup = group
+        }
+        
+        var lastPlayerGroup = playerGroups.last
+        settingsGroups.forEach { group in
+            addSettingsGroupToView(group, previousPlayerGroup: lastPlayerGroup)
+            lastPlayerGroup = nil
         }
 
         bottomView.addSubview(customizeButton)
     }
     
-    private func addGroupToView(_ group: PlayerGroupManager.PlayerGroup, previousGroup: PlayerGroupManager.PlayerGroup?) {
+    private func addGroupToView(_ group: PlayerSettingsGroupManager.PlayerGroup, previousGroup: PlayerSettingsGroupManager.PlayerGroup?) {
         [group.label, group.stackView, group.minusButton, group.plusButton].forEach {
             bottomView.addSubview($0)
         }
@@ -115,7 +131,47 @@ class GameSettingsViewController: UIViewController {
         setupGroupConstraints(group, previousGroup: previousGroup)
     }
     
-    private func setupGroupConstraints(_ group: PlayerGroupManager.PlayerGroup, previousGroup: PlayerGroupManager.PlayerGroup?) {
+    private func addSettingsGroupToView(_ group: GameSettingsGroupManager.SettingsGroup, previousPlayerGroup: PlayerSettingsGroupManager.PlayerGroup?) {
+        bottomView.addSubview(group.stackView)
+        
+        if let previousGroup = previousPlayerGroup {
+            NSLayoutConstraint.activate([
+                group.stackView.topAnchor.constraint(
+                    equalTo: previousGroup.stackView.bottomAnchor,
+                    constant: Constants.bigMargin),
+                group.stackView.leadingAnchor.constraint(
+                    equalTo: bottomView.leadingAnchor,
+                    constant: Constants.bigMargin),
+                group.stackView.trailingAnchor.constraint(
+                    equalTo: bottomView.trailingAnchor,
+                    constant: -Constants.bigMargin)
+            ])
+        } else {
+            // When this code runs:
+            let previousSettingsGroup = settingsGroups[safe: settingsGroups.firstIndex(of: group)?.advanced(by: -1) ?? 0]
+            // It's like saying:
+            // "Find where 'group' appears in settingsGroups array"
+            // The == operator is used internally to compare each group with 'group'
+            // So it's comparing:
+            // currentGroup == group
+            // where:
+            // - lhs (left-hand side) is the current group being checked
+            // - rhs (right-hand side) is the 'group' we're looking for
+            NSLayoutConstraint.activate([
+                group.stackView.topAnchor.constraint(
+                    equalTo: previousSettingsGroup?.stackView.bottomAnchor ?? bottomView.topAnchor,
+                    constant: Constants.bigMargin),
+                group.stackView.leadingAnchor.constraint(
+                    equalTo: bottomView.leadingAnchor,
+                    constant: Constants.bigMargin),
+                group.stackView.trailingAnchor.constraint(
+                    equalTo: bottomView.trailingAnchor,
+                    constant: -Constants.bigMargin)
+            ])
+        }
+    }
+    
+    private func setupGroupConstraints(_ group: PlayerSettingsGroupManager.PlayerGroup, previousGroup: PlayerSettingsGroupManager.PlayerGroup?) {
         if let previous = previousGroup {
             NSLayoutConstraint.activate([
                 group.label.topAnchor.constraint(
@@ -140,7 +196,7 @@ class GameSettingsViewController: UIViewController {
         setupGroupVerticalConstraints(group)
     }
     
-    private func setupGroupHorizontalConstraints(_ group: PlayerGroupManager.PlayerGroup) {
+    private func setupGroupHorizontalConstraints(_ group: PlayerSettingsGroupManager.PlayerGroup) {
         NSLayoutConstraint.activate([
             group.label.leadingAnchor.constraint(
                 equalTo: bottomView.leadingAnchor,
@@ -172,7 +228,7 @@ class GameSettingsViewController: UIViewController {
         ])
     }
     
-    private func setupGroupVerticalConstraints(_ group: PlayerGroupManager.PlayerGroup) {
+    private func setupGroupVerticalConstraints(_ group: PlayerSettingsGroupManager.PlayerGroup) {
         if group === civilGroup {
             NSLayoutConstraint.activate([
                 group.minusButton.centerYAnchor.constraint(
@@ -194,9 +250,36 @@ class GameSettingsViewController: UIViewController {
 
     private func createStartButton() -> CustomGradientButton {
         let button = CustomGradientButton(
-            labelText: "Oyna", width: 100, height: 60)
+            labelText: "Oyna", width: 100, height: GeneralConstants.Button.biggerHeight)
         button.onClick = { [weak self] in
             guard let self = self else { return }
+            
+            // Print player counts
+            if let civilGroup = self.civilGroup {
+                print("Oyuncu Sayısı: \(civilGroup.imageViews.count)")
+            }
+            if let spyGroup = self.spyGroup {
+                print("Casus Sayısı: \(spyGroup.imageViews.count)")
+            }
+            
+            // Print settings values
+            for (index, group) in self.settingsGroups.enumerated() {
+                switch index {
+                case 0:
+                    print("Kategori: \(group.value)")
+                case 1:
+                    print("Tur Süresi: \(group.value)")
+                case 2:
+                    print("Tur Sayısı: \(group.value)")
+                case 3:
+                    if let switchStatus = group.switchButton?.isOn {
+                        print("İpucunu Göster: \(switchStatus)")
+                    }
+                default:
+                    break
+                }
+            }
+            
             self.performSegue(
                 withIdentifier: "gameSettingsToCards", sender: self)
         }
@@ -205,7 +288,7 @@ class GameSettingsViewController: UIViewController {
 
     private func createCustomizeButton() -> CustomGradientButton {
         return CustomGradientButton(
-            labelText: "Özelleştir", width: 200, height: Constants.buttonsHeight
+            labelText: "Özelleştir", width: 200, height: Constants.buttonsHeight, fontSize: GeneralConstants.Font.size01
         )
     }
 
@@ -247,6 +330,12 @@ class GameSettingsViewController: UIViewController {
     @objc private func customBackAction() {
         dismiss(animated: true)
         navigationController?.popViewController(animated: true)
+    }
+}
+
+extension Collection {
+    subscript(safe index: Index) -> Element? {
+        return indices.contains(index) ? self[index] : nil
     }
 }
 

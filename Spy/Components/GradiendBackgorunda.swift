@@ -31,7 +31,7 @@ class GradientView: UIView {
         
         override func layoutSubviews() {
             super.layoutSubviews()
-            frame = superview?.bounds ?? .zero  // Süper view'in bounds’unu al
+            frame = superview?.bounds ?? .zero 
             layer.sublayers?.first?.frame = bounds
         }
 }

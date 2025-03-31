@@ -21,7 +21,7 @@ public class AnimationHelper {
         innerCornerRadius: CGFloat,
         borderWidth: CGFloat
     ) {
-        UIView.animate(withDuration: 0.5, animations: {
+        UIView.animate(withDuration: GeneralConstants.Animation.duration, animations: {
             firstViewTopConstraint.constant = 0
             firstViewBottomConstraint.constant = 0
             firstViewLeadingConstraint.constant = 0
@@ -30,7 +30,7 @@ public class AnimationHelper {
             thirdView.layer.shadowOpacity = 0
             firstView.superview?.layoutIfNeeded()
         }) { _ in
-            UIView.animate(withDuration: 0.5) {
+            UIView.animate(withDuration: GeneralConstants.Animation.duration) {
                 firstView.transform = .identity
                 firstViewTopConstraint.constant = borderWidth
                 firstViewBottomConstraint.constant = -borderWidth

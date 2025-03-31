@@ -78,7 +78,7 @@ class CustomGradientButton: UIView {
         }
     }
     
-    init(labelText: String = "", gradientColor: GradientColor = .blue, width: CGFloat = 150, height: CGFloat = 50, innerCornerRadius: CGFloat = 8, outherCornerRadius: CGFloat = 10, shadowColor: ShadowColor = .blue, borderWidth: CGFloat = 3) {
+    init(labelText: String = "", gradientColor: GradientColor = .blue, width: CGFloat = GeneralConstants.Button.defaultWidth, height: CGFloat = GeneralConstants.Button.defaultHeight, innerCornerRadius: CGFloat = GeneralConstants.Button.innerCornerRadius, outherCornerRadius: CGFloat = GeneralConstants.Button.outerCornerRadius, shadowColor: ShadowColor = .blue, borderWidth: CGFloat = GeneralConstants.Button.borderWidth, fontSize: CGFloat = GeneralConstants.Font.size04) {
         self.gradientColor = gradientColor
         self.width = width
         self.height = height
@@ -88,25 +88,25 @@ class CustomGradientButton: UIView {
         self.borderWidth = borderWidth
         self.labelText = labelText
         super.init(frame: .zero)
-        setupView()
+        setupView(fontSize: fontSize)
         setupTapGesture()
     }
     
     required init?(coder: NSCoder) {
         self.gradientColor = .blue
-        self.width = 150
-        self.height = 50
-        self.innerCornerRadius = 8
-        self.outherCornerRadius = 10
+        self.width = GeneralConstants.Button.defaultWidth
+        self.height = GeneralConstants.Button.defaultHeight
+        self.innerCornerRadius = GeneralConstants.Button.innerCornerRadius
+        self.outherCornerRadius = GeneralConstants.Button.outerCornerRadius
         self.shadowColor = .red
-        self.borderWidth = 5
+        self.borderWidth = GeneralConstants.Button.borderWidth
         self.labelText = "Button"
         super.init(coder: coder)
-        setupView()
+        setupView(fontSize: GeneralConstants.Font.size04)
         setupTapGesture()
     }
     
-    private func setupView() {
+    private func setupView(fontSize: CGFloat) {
         firstView.backgroundColor = .spyBlue04
         firstView.layer.cornerRadius = innerCornerRadius
         
@@ -123,7 +123,7 @@ class CustomGradientButton: UIView {
         
         titleLabel.text = labelText
         titleLabel.textColor = .white
-        titleLabel.font = UIFont.boldSystemFont(ofSize: 16)
+        titleLabel.font = UIFont.boldSystemFont(ofSize: fontSize)
         titleLabel.textAlignment = .center
         
         addSubview(thirdView)
@@ -169,12 +169,10 @@ class CustomGradientButton: UIView {
     }
     
     @objc private func handleTap() {
-        print("handleTap by GradientButton")
-        
         currentAnimator?.stopAnimation(true)
         currentAnimator?.finishAnimation(at: .current)
     
-        let animator = UIViewPropertyAnimator(duration: 0.3, curve: .easeInOut) {
+        let animator = UIViewPropertyAnimator(duration: GeneralConstants.Animation.duration, curve: .easeInOut) {
             AnimationHelper.animateButton(
                 firstView: self.firstView,
                 thirdView: self.thirdView,
@@ -199,13 +197,13 @@ class CustomGradientButton: UIView {
     }
     
     private func animateLabelChange() {
-        UIView.transition(with: titleLabel, duration: 0.3, options: .transitionCrossDissolve, animations: {
+        UIView.transition(with: titleLabel, duration: GeneralConstants.Animation.duration, options: .transitionCrossDissolve, animations: {
             self.titleLabel.text = self.labelText
         }, completion: nil)
     }
     
     func updateAppearance(shadowColor: ShadowColor, gradientColor: GradientColor) {
-        UIView.animate(withDuration: 0.3, animations: {
+        UIView.animate(withDuration: GeneralConstants.Animation.duration, animations: {
             self.shadowColor = shadowColor
             self.thirdView.layer.shadowColor = shadowColor.cgColor
             self.gradientAnimationBorder.updateGradient(to: gradientColor)

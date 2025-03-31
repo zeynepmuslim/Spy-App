@@ -1,11 +1,9 @@
 import UIKit
 import SwiftUI
 
-class PlayerGroupManager {
-    private enum Constants {
+class PlayerSettingsGroupManager {
+     enum Constants {
         static let iconSpacing: CGFloat = 10
-        static let buttonsHeight: CGFloat = 40
-        static let maxPlayerCount: Int = 6
         static let animationDuration: TimeInterval = 0.4
         static let fadeInDuration: TimeInterval = 0.15
         static let titleSize: CGFloat = 18
@@ -23,11 +21,8 @@ class PlayerGroupManager {
         let plusButton: CustomGradientButton
         let spacerView: UIView
         let imagesStackView: UIStackView
-        
         let minSpyCount: Int
-        
         let maxSpyCount: Int
-        
         let buttonColor: GradientColor
         
         init(title: String, 
@@ -82,10 +77,10 @@ class PlayerGroupManager {
             label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
             label.verticalAlignment = .custom(5)
             
-            minusButton = CustomGradientButton(labelText: "-", gradientColor: buttonColor, width: Constants.buttonsHeight, height: Constants.buttonsHeight, shadowColor: buttonShadow)
+            minusButton = CustomGradientButton(labelText: "-", gradientColor: buttonColor, width: GeneralConstants.Button.miniHeight, height: GeneralConstants.Button.miniHeight, shadowColor: buttonShadow)
             minusButton.translatesAutoresizingMaskIntoConstraints = false
             
-            plusButton = CustomGradientButton(labelText: "+", gradientColor: buttonColor, width: Constants.buttonsHeight, height: Constants.buttonsHeight, shadowColor: buttonShadow)
+            plusButton = CustomGradientButton(labelText: "+", gradientColor: buttonColor, width: GeneralConstants.Button.miniHeight, height: GeneralConstants.Button.miniHeight, shadowColor: buttonShadow)
             plusButton.translatesAutoresizingMaskIntoConstraints = false
             
             stackView.addArrangedSubview(label)
