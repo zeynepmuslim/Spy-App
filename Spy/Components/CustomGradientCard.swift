@@ -1,7 +1,14 @@
+//
+//  CustomGradientCard.swift
+//  Spy
+//
+//  Created by Zeynep Müslim on 1.04.2025.
+//
+
 import UIKit
 import SwiftUI
 
-class CustomGradientButton: UIView {
+class CustomGradientCard: UIView {
     var gradientColor: GradientColor
     var width: CGFloat
     var height: CGFloat
@@ -180,97 +187,32 @@ class CustomGradientButton: UIView {
 }
 
 //Preview
-struct CustomGradientButtonViewController: UIViewControllerRepresentable {
+struct CustomGradientCardViewController: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIViewController {
         let viewController = UIViewController()
+        let button = CustomGradientButton()
         viewController.view.backgroundColor = .systemGray
         
-        // 1. Red aktif button - büyük
-        let button1 = CustomGradientButton(
-            labelText: "Başla",
-            gradientColor: .red,
-            width: 250,
-            height: 60,
-            innerCornerRadius: 8,
-            outherCornerRadius: 10,
-            shadowColor: .red,
-            isBorderlessButton: false
-        )
-        button1.setStatus(.activeRed)
-
-        // 2. Blue aktif button - standart
-        let button2 = CustomGradientButton(
-            labelText: "Devam Et",
-            gradientColor: .blue,
-            width: 200,
-            height: 50,
-            innerCornerRadius: 8,
-            outherCornerRadius: 16,
-            shadowColor: .blue,
-            isBorderlessButton: false
-        )
-        button2.setStatus(.activeBlue)
-
-        // 3. Gri pasif button - küçük
-        let button3 = CustomGradientButton(
-            labelText: "Devre Dışı",
-            gradientColor: .gray,
-            width: 180,
-            height: 45,
-            innerCornerRadius: 8,
-            outherCornerRadius: 12,
-            shadowColor: .gray,
-            isBorderlessButton: false
-        )
-        button3.setStatus(.deactive)
-
-        // 4. Borderless buton
-        let button4 = CustomGradientButton(
-            labelText: "Sadece Kenarlık",
-            gradientColor: .blue,
-            width: 220,
-            height: 50,
-            innerCornerRadius: 10,
-            outherCornerRadius: 20,
-            shadowColor: .blue,
-            isBorderlessButton: true
-        )
-
-        // 5. Fancy uzun buton
-        let button5 = CustomGradientButton(
-            labelText: "Uzun Yazı Butonu",
-            gradientColor: .red,
-            width: 300,
-            height: 55,
-            innerCornerRadius: 14,
-            outherCornerRadius: 22,
-            shadowColor: .red,
-            isBorderlessButton: false
-        )
-        button5.setStatus(.activeRed)
-
-        // Stack'lemek için UIStackView
-        let stackView = UIStackView(arrangedSubviews: [button1, button2, button3, button4, button5])
-        stackView.axis = .vertical
-        stackView.spacing = 20
-        stackView.alignment = .center
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-
-        viewController.view.addSubview(stackView)
-
+        button.translatesAutoresizingMaskIntoConstraints = false
+        viewController.view.addSubview(button)
+        
         NSLayoutConstraint.activate([
-            stackView.centerXAnchor.constraint(equalTo: viewController.view.centerXAnchor),
-            stackView.centerYAnchor.constraint(equalTo: viewController.view.centerYAnchor)
+            button.centerXAnchor.constraint(equalTo: viewController.view.centerXAnchor),
+            button.centerYAnchor.constraint(equalTo: viewController.view.centerYAnchor),
+            button.widthAnchor.constraint(equalToConstant: 200),
+            button.heightAnchor.constraint(equalToConstant: 50)
         ])
-
+        
         return viewController
     }
-
-    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
+    
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
+        // Gerekirse burada güncelleme yapılabilir
+    }
 }
 
-struct ViewController_Previews4: PreviewProvider {
+struct ViewController_Previews5: PreviewProvider {
     static var previews: some View {
-        CustomGradientButtonViewController()
+        CustomGradientCardViewController()
     }
 }

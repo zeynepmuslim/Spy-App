@@ -250,11 +250,10 @@ class GameSettingsViewController: UIViewController {
 
     private func createStartButton() -> CustomGradientButton {
         let button = CustomGradientButton(
-            labelText: "Oyna", width: 100, height: GeneralConstants.Button.biggerHeight)
+            labelText: "Oyna", width: 100, height: GeneralConstants.Button.biggerHeight, isBorderlessButton: true)
         button.onClick = { [weak self] in
             guard let self = self else { return }
             
-            // Print player counts
             if let civilGroup = self.civilGroup {
                 print("Oyuncu Sayısı: \(civilGroup.imageViews.count)")
             }
@@ -262,7 +261,6 @@ class GameSettingsViewController: UIViewController {
                 print("Casus Sayısı: \(spyGroup.imageViews.count)")
             }
             
-            // Print settings values
             for (index, group) in self.settingsGroups.enumerated() {
                 switch index {
                 case 0:
@@ -305,8 +303,6 @@ class GameSettingsViewController: UIViewController {
                 equalTo: view.leadingAnchor, constant: Constants.bigMargin),
             bottomView.trailingAnchor.constraint(
                 equalTo: view.trailingAnchor, constant: -Constants.bigMargin),
-            bottomView.bottomAnchor.constraint(
-                equalTo: startButton.topAnchor, constant: -20),
             bottomView.topAnchor.constraint(
                 equalTo: backButton.bottomAnchor, constant: 10),
 
@@ -325,6 +321,15 @@ class GameSettingsViewController: UIViewController {
             customizeButton.trailingAnchor.constraint(
                 equalTo: civilGroup?.plusButton.trailingAnchor ?? bottomView.trailingAnchor),
         ])
+
+        // conditional bottom constraint
+        if let lastSettingsGroup = settingsGroups.last {
+            bottomView.bottomAnchor.constraint(
+                equalTo: lastSettingsGroup.stackView.bottomAnchor, constant: 20).isActive = true
+        } else {
+            bottomView.bottomAnchor.constraint(
+                equalTo: startButton.topAnchor, constant: -20).isActive = true
+        }
     }
 
     @objc private func customBackAction() {

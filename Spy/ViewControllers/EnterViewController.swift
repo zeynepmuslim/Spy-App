@@ -35,9 +35,9 @@ class EnterViewController: UIViewController {
             ])
         }
         
-        let startGameButton = CustomGradientButton(labelText: "Yeni Oyun",gradientColor: .red, width: 150,height: 200,shadowColor: .red)
-        let settingsButton = CustomGradientButton(labelText: "Ayarlar")
-        let howToPlayButton = CustomGradientButton(labelText: "Nasıl Oynanır")
+        let startGameButton = CustomGradientButton(labelText: "Yeni Oyun",gradientColor: .red, width: 150,height: GeneralConstants.Button.biggerHeight ,shadowColor: .red)
+        let settingsButton = CustomGradientButton(labelText: "Ayarlar",height: GeneralConstants.Button.biggerHeight)
+        let howToPlayButton = CustomGradientButton(labelText: "Nasıl Oynanır",height: GeneralConstants.Button.biggerHeight)
         
         let lowerStack = UIStackView()
         lowerStack.axis = .vertical

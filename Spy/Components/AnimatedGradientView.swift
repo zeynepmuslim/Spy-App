@@ -1,21 +1,4 @@
 import UIKit
-
-enum GradientColor {
-    case blue
-    case red
-    case gray
-    
-    var colors: [CGColor] {
-        switch self {
-        case .blue:
-            return [UIColor.spyBlue01G.cgColor, UIColor.spyBlue02G.cgColor]
-        case .red:
-            return [UIColor.spyRed01G.cgColor, UIColor.spyRed02G.cgColor]
-        case .gray:
-            return [UIColor.spyGray01G.cgColor, UIColor.spyGray02G.cgColor]
-        }
-    }
-}
  
 class AnimatedGradientView: UIView {
     

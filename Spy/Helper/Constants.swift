@@ -12,12 +12,13 @@ enum GeneralConstants {
     enum Button {
         static let miniHeight: CGFloat = 40
         static let defaultHeight: CGFloat = 50
-        static let biggerHeight: CGFloat = 50
+        static let biggerHeight: CGFloat = 60
         static let borderWidth: CGFloat = 3
         static let innerCornerRadius: CGFloat = 8
         static let outerCornerRadius: CGFloat = 10
         static let defaultWidth: CGFloat = 150
         static let categoryButtonWidth: CGFloat = 90
+        static let shadowOpacity: Float = 0.5
     }
     
     enum Font {

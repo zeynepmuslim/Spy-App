@@ -37,7 +37,7 @@ public class AnimationHelper {
                 firstViewLeadingConstraint.constant = borderWidth
                 firstViewTrailingConstraint.constant = -borderWidth
                 firstView.layer.cornerRadius = innerCornerRadius
-                thirdView.layer.shadowOpacity = 1.0
+                thirdView.layer.shadowOpacity = GeneralConstants.Button.shadowOpacity
                 firstView.superview?.layoutIfNeeded()
             }
         }
