@@ -2,6 +2,9 @@ import SwiftUI
 import UIKit
 class GameSettingsViewController: UIViewController {
  
+    /// LAG VAR BUTONLARA ARDI ARDINA BASILINCA DEACTİVE OLUYOR AMA RESİMLER DÜŞMÜYOR
+    /// AYRICA HER ZAMAN CİVİL SAYISI AJAN SAYISIDAN FAZLA OLMALI AYARLARAAAA
+    
     private enum Constants {
         static let bigMargin: CGFloat = GeneralConstants.Layout.bigMargin
         static let littleMargin: CGFloat = GeneralConstants.Layout.littleMargin
@@ -12,7 +15,7 @@ class GameSettingsViewController: UIViewController {
     private var playerGroups: [PlayerSettingsGroupManager.PlayerGroup] = []
     private var settingsGroups: [GameSettingsGroupManager.SettingsGroup] = []
     
-    private var civilGroup: PlayerSettingsGroupManager.PlayerGroup? {
+    private var playerGroup: PlayerSettingsGroupManager.PlayerGroup? {
         playerGroups.first
     }
     
@@ -35,18 +38,12 @@ class GameSettingsViewController: UIViewController {
     }
     
     private func setupPlayerGroups() {
-        let updateButtons = { [weak self] in
-            guard let self = self else { return }
-            self.updateButtonStates()
-        }
         
         playerGroups = [
             PlayerSettingsGroupManager.PlayerGroup(
                 title: "Oyuncu Sayısı",
                 target: self,
                 index: 0,
-                onRemove: updateButtons,
-                onAdd: updateButtons,
                 minSpyCount: 3,
                 maxSpyCount: 10
             ),
@@ -54,10 +51,9 @@ class GameSettingsViewController: UIViewController {
                 title: "Casus Sayısı",
                 target: self,
                 index: 1,
-                onRemove: updateButtons,
-                onAdd: updateButtons,
-                buttonColor: .red,
+                buttonBorderColor: .red,
                 buttonShadow: .red,
+                buttonColor: .red,
                 minSpyCount: 1,
                 maxSpyCount: 3
             ),
@@ -71,36 +67,6 @@ class GameSettingsViewController: UIViewController {
             GameSettingsGroupManager.createRoundCountGroup(target: self),
             GameSettingsGroupManager.createHintToggleGroup(target: self)
         ]
-    }
-    
-    private func updateButtonStates() {
-        guard let civilGroup = civilGroup, let spyGroup = spyGroup else { return }
-        
-        let playerCount = civilGroup.imageViews.count
-        let spyCount = spyGroup.imageViews.count
-        
-        updateGroupButtonStates(group: spyGroup, count: spyCount, isSpyGroup: true)
-        updateGroupButtonStates(group: civilGroup, count: playerCount, isSpyGroup: false)
-    }
-    
-    private func updateGroupButtonStates(group: PlayerSettingsGroupManager.PlayerGroup, count: Int, isSpyGroup: Bool) {
-        let activeStatus: ButtonStatus = isSpyGroup ? .activeRed : .activeBlue
-        
-        if count >= group.maxSpyCount {
-            group.plusButton.setStatus(.deactive)
-            group.plusButton.isUserInteractionEnabled = false
-        } else {
-            group.plusButton.setStatus(activeStatus)
-            group.plusButton.isUserInteractionEnabled = true
-        }
-        
-        if count <= group.minSpyCount {
-            group.minusButton.setStatus(.deactive)
-            group.minusButton.isUserInteractionEnabled = false
-        } else {
-            group.minusButton.setStatus(activeStatus)
-            group.minusButton.isUserInteractionEnabled = true
-        }
     }
     
     private func setupInitialUI() {
@@ -229,7 +195,7 @@ class GameSettingsViewController: UIViewController {
     }
     
     private func setupGroupVerticalConstraints(_ group: PlayerSettingsGroupManager.PlayerGroup) {
-        if group === civilGroup {
+        if group === playerGroup {
             NSLayoutConstraint.activate([
                 group.minusButton.centerYAnchor.constraint(
                     equalTo: group.label.centerYAnchor),
@@ -253,35 +219,49 @@ class GameSettingsViewController: UIViewController {
             labelText: "Oyna", width: 100, height: GeneralConstants.Button.biggerHeight, isBorderlessButton: true)
         button.onClick = { [weak self] in
             guard let self = self else { return }
+            self.performSegue(withIdentifier: "gameSettingsToCards", sender: self)
+        }
+        return button
+    }
+
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "gameSettingsToCards",
+           let gameCardsVC = segue.destination as? GameCardsViewController {
             
-            if let civilGroup = self.civilGroup {
-                print("Oyuncu Sayısı: \(civilGroup.imageViews.count)")
-            }
-            if let spyGroup = self.spyGroup {
-                print("Casus Sayısı: \(spyGroup.imageViews.count)")
-            }
+            // Get player and spy counts
+            let playerCount = playerGroup?.imageViews.count ?? 0
+            let spyCount = spyGroup?.imageViews.count ?? 0
             
-            for (index, group) in self.settingsGroups.enumerated() {
+            // Get other settings
+            var category = ""
+            var roundDuration = ""
+            var roundCount = ""
+            var showHints = false
+            
+            for (index, group) in settingsGroups.enumerated() {
                 switch index {
                 case 0:
-                    print("Kategori: \(group.value)")
+                    category = String(describing: group.value)
                 case 1:
-                    print("Tur Süresi: \(group.value)")
+                    roundDuration = String(describing: group.value)
                 case 2:
-                    print("Tur Sayısı: \(group.value)")
+                    roundCount = String(describing: group.value)
                 case 3:
-                    if let switchStatus = group.switchButton?.isOn {
-                        print("İpucunu Göster: \(switchStatus)")
-                    }
+                    showHints = group.switchButton?.isOn ?? false
                 default:
                     break
                 }
             }
             
-            self.performSegue(
-                withIdentifier: "gameSettingsToCards", sender: self)
+            gameCardsVC.setGameParameters(
+                playerCount: playerCount,
+                spyCount: spyCount,
+                category: category,
+                roundDuration: roundDuration,
+                roundCount: roundCount,
+                showHints: showHints
+            )
         }
-        return button
     }
 
     private func createCustomizeButton() -> CustomGradientButton {
@@ -314,12 +294,12 @@ class GameSettingsViewController: UIViewController {
                 equalTo: view.safeAreaLayoutGuide.bottomAnchor),
 
             customizeButton.topAnchor.constraint(
-                equalTo: civilGroup?.minusButton.bottomAnchor ?? bottomView.topAnchor,
+                equalTo: playerGroup?.minusButton.bottomAnchor ?? bottomView.topAnchor,
                 constant: Constants.littleMargin),
             customizeButton.leadingAnchor.constraint(
-                equalTo: civilGroup?.minusButton.leadingAnchor ?? bottomView.leadingAnchor),
+                equalTo: playerGroup?.minusButton.leadingAnchor ?? bottomView.leadingAnchor),
             customizeButton.trailingAnchor.constraint(
-                equalTo: civilGroup?.plusButton.trailingAnchor ?? bottomView.trailingAnchor),
+                equalTo: playerGroup?.plusButton.trailingAnchor ?? bottomView.trailingAnchor),
         ])
 
         // conditional bottom constraint

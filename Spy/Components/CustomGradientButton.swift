@@ -3,6 +3,7 @@ import SwiftUI
 
 class CustomGradientButton: UIView {
     var gradientColor: GradientColor
+    var buttonColor: ButtonColor
     var width: CGFloat
     var height: CGFloat
     var innerCornerRadius: CGFloat
@@ -31,11 +32,11 @@ class CustomGradientButton: UIView {
     
     private var status: ButtonStatus = .activeBlue {
         didSet {
-            updateAppearance(shadowColor: status.shadowColor, gradientColor: status.gradientColor)
+            updateAppearance(shadowColor: status.shadowColor, gradientColor: status.gradientColor, buttonColor: status.buttonColor)
         }
     }
     
-    init(labelText: String = "Hiii", gradientColor: GradientColor = .blue, width: CGFloat = GeneralConstants.Button.defaultWidth, height: CGFloat = GeneralConstants.Button.defaultHeight, innerCornerRadius: CGFloat = GeneralConstants.Button.innerCornerRadius, outherCornerRadius: CGFloat = GeneralConstants.Button.outerCornerRadius, shadowColor: ShadowColor = .blue, borderWidth: CGFloat = GeneralConstants.Button.borderWidth, fontSize: CGFloat = GeneralConstants.Font.size04, isBorderlessButton: Bool = false) {
+    init(labelText: String = "Hiii", gradientColor: GradientColor = .blue, width: CGFloat = GeneralConstants.Button.defaultWidth, height: CGFloat = GeneralConstants.Button.defaultHeight, innerCornerRadius: CGFloat = GeneralConstants.Button.innerCornerRadius, outherCornerRadius: CGFloat = GeneralConstants.Button.outerCornerRadius, shadowColor: ShadowColor = .blue, buttonColor: ButtonColor = .blue,borderWidth: CGFloat = GeneralConstants.Button.borderWidth, fontSize: CGFloat = GeneralConstants.Font.size04, isBorderlessButton: Bool = false) {
         self.gradientColor = gradientColor
         self.width = width
         self.height = height
@@ -45,6 +46,7 @@ class CustomGradientButton: UIView {
         self.borderWidth = borderWidth
         self.labelText = labelText
         self.isBorderlessButton = isBorderlessButton
+        self.buttonColor = buttonColor
         super.init(frame: .zero)
         setupView(fontSize: fontSize)
         setupTapGesture()
@@ -56,17 +58,18 @@ class CustomGradientButton: UIView {
         self.height = GeneralConstants.Button.defaultHeight
         self.innerCornerRadius = GeneralConstants.Button.innerCornerRadius
         self.outherCornerRadius = GeneralConstants.Button.outerCornerRadius
-        self.shadowColor = .red
+        self.shadowColor = .blue
         self.borderWidth = GeneralConstants.Button.borderWidth
         self.labelText = "Button"
         self.isBorderlessButton = false
+        self.buttonColor = ButtonColor.blue
         super.init(coder: coder)
         setupView(fontSize: GeneralConstants.Font.size04)
         setupTapGesture()
     }
     
     private func setupView(fontSize: CGFloat) {
-        firstView.backgroundColor = .spyBlue04
+        firstView.backgroundColor = buttonColor.color
         firstView.layer.cornerRadius = innerCornerRadius
         firstView.isHidden = isBorderlessButton
         
@@ -162,11 +165,12 @@ class CustomGradientButton: UIView {
         }, completion: nil)
     }
     
-    func updateAppearance(shadowColor: ShadowColor, gradientColor: GradientColor) {
+    func updateAppearance(shadowColor: ShadowColor, gradientColor: GradientColor, buttonColor: ButtonColor) {
         UIView.animate(withDuration: GeneralConstants.Animation.duration, animations: {
             self.shadowColor = shadowColor
             self.thirdView.layer.shadowColor = shadowColor.cgColor
             self.gradientAnimationBorder.updateGradient(to: gradientColor)
+            self.firstView.backgroundColor = buttonColor.color
         })
     }
     
@@ -185,7 +189,6 @@ struct CustomGradientButtonViewController: UIViewControllerRepresentable {
         let viewController = UIViewController()
         viewController.view.backgroundColor = .systemGray
         
-        // 1. Red aktif button - büyük
         let button1 = CustomGradientButton(
             labelText: "Başla",
             gradientColor: .red,
@@ -198,7 +201,6 @@ struct CustomGradientButtonViewController: UIViewControllerRepresentable {
         )
         button1.setStatus(.activeRed)
 
-        // 2. Blue aktif button - standart
         let button2 = CustomGradientButton(
             labelText: "Devam Et",
             gradientColor: .blue,
@@ -211,7 +213,6 @@ struct CustomGradientButtonViewController: UIViewControllerRepresentable {
         )
         button2.setStatus(.activeBlue)
 
-        // 3. Gri pasif button - küçük
         let button3 = CustomGradientButton(
             labelText: "Devre Dışı",
             gradientColor: .gray,
@@ -224,7 +225,6 @@ struct CustomGradientButtonViewController: UIViewControllerRepresentable {
         )
         button3.setStatus(.deactive)
 
-        // 4. Borderless buton
         let button4 = CustomGradientButton(
             labelText: "Sadece Kenarlık",
             gradientColor: .blue,
@@ -236,7 +236,6 @@ struct CustomGradientButtonViewController: UIViewControllerRepresentable {
             isBorderlessButton: true
         )
 
-        // 5. Fancy uzun buton
         let button5 = CustomGradientButton(
             labelText: "Uzun Yazı Butonu",
             gradientColor: .red,
@@ -249,7 +248,6 @@ struct CustomGradientButtonViewController: UIViewControllerRepresentable {
         )
         button5.setStatus(.activeRed)
 
-        // Stack'lemek için UIStackView
         let stackView = UIStackView(arrangedSubviews: [button1, button2, button3, button4, button5])
         stackView.axis = .vertical
         stackView.spacing = 20

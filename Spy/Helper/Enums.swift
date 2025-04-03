@@ -24,6 +24,23 @@ enum ShadowColor {
       }
   }
 
+enum ButtonColor {
+      case red
+      case blue
+      case gray
+      
+    var color: UIColor {
+          switch self {
+          case .red:
+              return UIColor.spyRed03
+          case .blue:
+              return UIColor.spyBlue04
+          case .gray:
+              return UIColor.spyGray05
+          }
+      }
+  }
+
 enum ButtonStatus {
     case activeRed
     case activeBlue
@@ -41,6 +58,17 @@ enum ButtonStatus {
     }
     
     var gradientColor: GradientColor {
+        switch self {
+        case .activeRed:
+            return .red
+        case .activeBlue:
+            return .blue
+        case .deactive:
+            return .gray
+        }
+    }
+    
+    var buttonColor: ButtonColor {
         switch self {
         case .activeRed:
             return .red

@@ -35,7 +35,7 @@ class EnterViewController: UIViewController {
             ])
         }
         
-        let startGameButton = CustomGradientButton(labelText: "Yeni Oyun",gradientColor: .red, width: 150,height: GeneralConstants.Button.biggerHeight ,shadowColor: .red)
+        let startGameButton = CustomGradientButton(labelText: "Yeni Oyun",gradientColor: .red, width: 150,height: GeneralConstants.Button.biggerHeight ,shadowColor: .red, buttonColor: .red)
         let settingsButton = CustomGradientButton(labelText: "Ayarlar",height: GeneralConstants.Button.biggerHeight)
         let howToPlayButton = CustomGradientButton(labelText: "Nasıl Oynanır",height: GeneralConstants.Button.biggerHeight)
         
@@ -65,7 +65,7 @@ class EnterViewController: UIViewController {
         
         settingsButton.onClick = {
             print("Settings Button Clicked!")
-            settingsButton.updateAppearance(shadowColor: .red, gradientColor: .red)
+            settingsButton.updateAppearance(shadowColor: .red, gradientColor: .red, buttonColor: .red)
             settingsButton.labelText = "Button Clicked"
         }
         

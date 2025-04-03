@@ -21,16 +21,16 @@ class CustomGradientSwitch: UIView {
     
     private var status: ButtonStatus = .activeBlue {
         didSet {
-            updateAppearance(shadowColor: status.shadowColor, gradientColor: status.gradientColor)
+            updateAppearance(shadowColor: status.shadowColor, gradientColor: status.gradientColor, buttonColor: status.buttonColor)
         }
     }
     
-    init(switchHeight: CGFloat = GeneralConstants.Button.miniHeight, gradientColor: GradientColor = .blue, shadowColor: ShadowColor = .blue) {
+    init(switchHeight: CGFloat = GeneralConstants.Button.miniHeight, gradientColor: GradientColor = .blue, shadowColor: ShadowColor = .blue, buttonColor: ButtonColor = .blue) {
         self.switchHeight = switchHeight
         super.init(frame: .zero)
         setupView()
         setupTapGesture()
-        updateAppearance(shadowColor: shadowColor, gradientColor: gradientColor)
+        updateAppearance(shadowColor: shadowColor, gradientColor: gradientColor, buttonColor: buttonColor)
         
         firstView.transform = CGAffineTransform(translationX: switchWidth - innerSize - borderWidth * 2, y: 0)
         indicatorLabel.text = "I"
@@ -41,7 +41,7 @@ class CustomGradientSwitch: UIView {
         super.init(coder: coder)
         setupView()
         setupTapGesture()
-        updateAppearance(shadowColor: .blue, gradientColor: .blue)
+        updateAppearance(shadowColor: .blue, gradientColor: .blue, buttonColor: .blue)
         
         firstView.transform = CGAffineTransform(translationX: switchWidth - innerSize - borderWidth * 2, y: 0)
         indicatorLabel.text = "I"
@@ -137,10 +137,11 @@ class CustomGradientSwitch: UIView {
         return isOn
     }
     
-    private func updateAppearance(shadowColor: ShadowColor, gradientColor: GradientColor) {
+    private func updateAppearance(shadowColor: ShadowColor, gradientColor: GradientColor, buttonColor: ButtonColor) {
         UIView.animate(withDuration: GeneralConstants.Animation.duration) {
             self.gradientAnimationBorder.updateGradient(to: gradientColor)
             self.indicatorLabel.textColor = self.isOn ? .white : .spyGray01
+            self.firstView.backgroundColor = buttonColor.color
         }
     }
 } 

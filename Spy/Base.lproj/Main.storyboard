@@ -56,10 +56,29 @@
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
                     <navigationItem key="navigationItem" id="2aB-zZ-juu"/>
+                    <connections>
+                        <segue destination="wET-9W-NNz" kind="show" identifier="CardsToTimerStart" id="dV5-Wd-zYx"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="QLy-Gt-RF8" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1653" y="4"/>
+        </scene>
+        <!--Start Timer View Controller-->
+        <scene sceneID="WL7-Sk-bP2">
+            <objects>
+                <viewController modalPresentationStyle="fullScreen" id="wET-9W-NNz" customClass="StartTimerViewController" customModule="Spy" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="3qy-y5-W6C">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="NYK-Xu-gF8"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="8cA-ae-9Xc"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="tiY-wL-MZP" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2431" y="4"/>
         </scene>
     </scenes>
     <resources>

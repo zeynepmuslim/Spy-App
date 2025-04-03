@@ -23,22 +23,21 @@ class PlayerSettingsGroupManager {
         let imagesStackView: UIStackView
         let minSpyCount: Int
         let maxSpyCount: Int
-        let buttonColor: GradientColor
+        let buttonBorderColor: GradientColor
         
         init(title: String, 
              target: UIViewController, 
-             index: Int, 
-             onRemove: @escaping () -> Void, 
-             onAdd: @escaping () -> Void, 
-             buttonColor: GradientColor = .blue, 
+             index: Int,
+             buttonBorderColor: GradientColor = .blue,
              buttonShadow: ShadowColor = .blue,
+             buttonColor: ButtonColor = .blue,
              minSpyCount: Int = 1,
              maxSpyCount: Int = 8) {
             
             self.minSpyCount = max(1, minSpyCount)
             self.maxSpyCount = max(self.minSpyCount, maxSpyCount)
             
-            self.buttonColor = buttonColor
+            self.buttonBorderColor = buttonBorderColor
             
             stackView = UIStackView()
             horizontalStackView = UIStackView()
@@ -77,10 +76,10 @@ class PlayerSettingsGroupManager {
             label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
             label.verticalAlignment = .custom(5)
             
-            minusButton = CustomGradientButton(labelText: "-", gradientColor: buttonColor, width: GeneralConstants.Button.miniHeight, height: GeneralConstants.Button.miniHeight, shadowColor: buttonShadow)
+            minusButton = CustomGradientButton(labelText: "-", gradientColor: buttonBorderColor, width: GeneralConstants.Button.miniHeight, height: GeneralConstants.Button.miniHeight, shadowColor: buttonShadow, buttonColor: buttonColor)
             minusButton.translatesAutoresizingMaskIntoConstraints = false
             
-            plusButton = CustomGradientButton(labelText: "+", gradientColor: buttonColor, width: GeneralConstants.Button.miniHeight, height: GeneralConstants.Button.miniHeight, shadowColor: buttonShadow)
+            plusButton = CustomGradientButton(labelText: "+", gradientColor: buttonBorderColor, width: GeneralConstants.Button.miniHeight, height: GeneralConstants.Button.miniHeight, shadowColor: buttonShadow, buttonColor: buttonColor)
             plusButton.translatesAutoresizingMaskIntoConstraints = false
             
             stackView.addArrangedSubview(label)
@@ -271,7 +270,7 @@ class PlayerSettingsGroupManager {
         
         private func updateButton(_ button: CustomGradientButton, isEnabled: Bool) {
             if isEnabled {
-                button.setStatus(buttonColor == .red ? .activeRed : .activeBlue)
+                button.setStatus(buttonBorderColor == .red ? .activeRed : .activeBlue)
                 button.isUserInteractionEnabled = true
             } else {
                 button.setStatus(.deactive)

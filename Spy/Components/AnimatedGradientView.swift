@@ -35,7 +35,7 @@ class AnimatedGradientView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
                let maxSide = max(bounds.width, bounds.height)
-        let scaledSize = maxSide * 1.2
+        let scaledSize = maxSide * 1.3
                
                gradientLayer.frame = CGRect(
                    x: bounds.midX - scaledSize / 2,
