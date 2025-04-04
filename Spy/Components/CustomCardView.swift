@@ -291,8 +291,7 @@ class CustomCardView: UIView {
             
             let status: ButtonStatus = isSpy ? .activeRed : .activeBlue
             
-            let originalZPosition = layer.zPosition
-            
+            let originalZPosition = layer.zPosition // z poziyonu ayar gerkli çünkü flip 3D olarak oynuyır eğer oluştuştuğu layerde kalırsa kartlar iç içe geliyor
             layer.zPosition = 1000
             
             var transform3D = CATransform3DIdentity

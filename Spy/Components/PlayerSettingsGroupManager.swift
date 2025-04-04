@@ -25,6 +25,9 @@ class PlayerSettingsGroupManager {
         let maxSpyCount: Int
         let buttonBorderColor: GradientColor
         
+        private var isAnimating: Bool = false // buttonların hızına animayonlar yeşimediğinden bug ı engellemek için butonları disable yap
+        private var spacerWidthConstraint: NSLayoutConstraint?
+        
         init(title: String, 
              target: UIViewController, 
              index: Int,
@@ -95,6 +98,10 @@ class PlayerSettingsGroupManager {
             imagesStackView.widthAnchor.constraint(equalTo: label.widthAnchor).isActive = true
             horizontalStackView.widthAnchor.constraint(equalTo: label.widthAnchor).isActive = true
             
+            // Create the width constraint but keep it inactive initially
+            spacerWidthConstraint = spacerView.widthAnchor.constraint(equalToConstant: 5)
+            spacerWidthConstraint?.priority = .defaultHigh // Give it priority over hugging/compression
+            
             minusButton.onClick = { [weak self] in
                 self?.removeSpyImage()
             }
@@ -104,6 +111,7 @@ class PlayerSettingsGroupManager {
             }
             
             updateButtonStates()
+            updateSpacerState(animated: false)
         }
         
         private func createSpyImages() {
@@ -138,18 +146,6 @@ class PlayerSettingsGroupManager {
             
             for (index, imageView) in imageViews.enumerated() {
                 let delay = Double(index) * Constants.waveDelay
-                
-                UIView.animate(withDuration: Constants.animationDuration,
-                             delay: delay,
-                             options: .curveEaseInOut) {
-                    imageView.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
-                } completion: { _ in
-                    UIView.animate(withDuration: Constants.animationDuration,
-                                 delay: 0,
-                                 options: .curveEaseInOut) {
-                        imageView.transform = .identity
-                    }
-                }
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
                     UIView.transition(with: imageView,
@@ -204,7 +200,9 @@ class PlayerSettingsGroupManager {
                         if willCrossThreshold && !isAlreadyPastThreshold {
                             self?.updateAllImages()
                         }
+                        self?.isAnimating = false
                         self?.updateButtonStates()
+                        self?.updateSpacerState(animated: true)
                     }
                 }
             } else {
@@ -216,17 +214,23 @@ class PlayerSettingsGroupManager {
                 if willCrossThreshold && !isAlreadyPastThreshold {
                     updateAllImages()
                 }
+                isAnimating = false
                 updateButtonStates()
+                updateSpacerState(animated: false)
             }
         }
         
         private func removeSpyImage(animated: Bool = true) {
             guard imageViews.count > minSpyCount else { return }
             guard let lastImageView = imageViews.last else { return }
+            guard !isAnimating else { return }
             
             let willCrossThreshold = imageViews.count == Constants.iconThreshold + 1
             
             if animated {
+                isAnimating = true
+                updateButtonStates()
+                
                 UIView.animate(withDuration: Constants.animationDuration * 0.5,
                              delay: 0,
                              usingSpringWithDamping: 0.6,
@@ -248,7 +252,9 @@ class PlayerSettingsGroupManager {
                         if willCrossThreshold {
                             self?.updateAllImages()
                         }
+                        self?.isAnimating = false
                         self?.updateButtonStates()
+                        self?.updateSpacerState(animated: true)
                     }
                 }
             } else {
@@ -257,24 +263,56 @@ class PlayerSettingsGroupManager {
                 if willCrossThreshold {
                     updateAllImages()
                 }
+                isAnimating = false
                 updateButtonStates()
+                updateSpacerState(animated: false)
             }
         }
         
         private func updateButtonStates() {
             let currentCount = imageViews.count
             
-            updateButton(minusButton, isEnabled: currentCount > minSpyCount)
-            updateButton(plusButton, isEnabled: currentCount < maxSpyCount)
+            let minusEnabledByCount = currentCount > minSpyCount
+            let plusEnabledByCount = currentCount < maxSpyCount
+            
+            updateButtonVisuals(minusButton, isEnabled: minusEnabledByCount)
+            updateButtonVisuals(plusButton, isEnabled: plusEnabledByCount)
+            
+            minusButton.isUserInteractionEnabled = minusEnabledByCount && !isAnimating
+            plusButton.isUserInteractionEnabled = plusEnabledByCount && !isAnimating
         }
         
-        private func updateButton(_ button: CustomGradientButton, isEnabled: Bool) {
+        // Renamed function to clarify its purpose
+        private func updateButtonVisuals(_ button: CustomGradientButton, isEnabled: Bool) {
             if isEnabled {
                 button.setStatus(buttonBorderColor == .red ? .activeRed : .activeBlue)
-                button.isUserInteractionEnabled = true
             } else {
                 button.setStatus(.deactive)
-                button.isUserInteractionEnabled = false
+            }
+        }
+        
+        private func updateSpacerState(animated: Bool) {
+            let shouldHaveSmallWidth = imageViews.count > Constants.iconThreshold - 1
+            let isCurrentlySmall = spacerWidthConstraint?.isActive ?? false
+            
+            guard isCurrentlySmall != shouldHaveSmallWidth else { return } // No change needed
+
+            let updateLayout = { [weak self] in
+                if shouldHaveSmallWidth {
+                    self?.spacerWidthConstraint?.isActive = true
+                } else {
+                    self?.spacerWidthConstraint?.isActive = false
+                }
+                // Crucial for animating constraint changes
+                self?.horizontalStackView.layoutIfNeeded()
+            }
+
+            if animated {
+                UIView.animate(withDuration: Constants.animationDuration * 0.5, delay: 0, options: .curveEaseInOut) {
+                    updateLayout()
+                }
+            } else {
+                updateLayout()
             }
         }
     }

@@ -115,7 +115,7 @@ class GameCardsViewController: UIViewController, CustomCardViewDelegate {
                 cardView.alpha = 1
                 let scaleTransform = CGAffineTransform(scaleX: scale, y: scale)
                 let translateTransform = CGAffineTransform(translationX: 0, y: yOffset)
-                cardView.transform = scaleTransform.concatenating(translateTransform)
+                cardView.transform = scaleTransform.concatenating(translateTransform) // birleştirmek için kullanıyo hem öteleme hem boyut matrikslerini aynı anda uyguluyor
                 cardView.layer.zPosition = CGFloat(self.playerCount - i)
             } completion: { _ in
                 if i == 0 {

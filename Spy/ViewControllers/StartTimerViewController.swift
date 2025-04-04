@@ -5,8 +5,6 @@
 //  Created by Zeynep Müslim on 2.04.2025.
 //
 
-// labelleri fonksiyon şejkliden yap
-
 import SwiftUI
 import UIKit
 
@@ -33,23 +31,8 @@ class StartTimerViewController: UIViewController {
         view.addSubview(gradientView)
         view.addSubview(bottomView)
 
-        titleLabel.text =
-            "Süre bitmeden araınızdaki ajanı bulun! Yoksa ajan kazanır"
-        titleLabel.textColor = .white
-        titleLabel.font = UIFont.boldSystemFont(ofSize: 18)
-        titleLabel.textAlignment = .center
-        titleLabel.numberOfLines = 0
-        titleLabel.lineBreakMode = .byWordWrapping
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-
-        subtitleLabel.text =
-            "Herkes hazır olduğunda süreyi başlatmak içn ekrana dokun"
-        subtitleLabel.textColor = .white
-        subtitleLabel.font = UIFont.systemFont(ofSize: 14)
-        subtitleLabel.textAlignment = .center
-        subtitleLabel.numberOfLines = 0
-        subtitleLabel.lineBreakMode = .byWordWrapping
-        subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
+        setupTitleLabel()
+        setupSubtitleLabel()
 
         bottomView.addSubview(titleLabel)
         bottomView.addSubview(subtitleLabel)
@@ -60,9 +43,32 @@ class StartTimerViewController: UIViewController {
         bottomView.bringSubviewToFront(subtitleLabel)
 
         setupConstraints()
+        spawnLabel()
         spawnTimer = Timer.scheduledTimer(
             timeInterval: 2.0, target: self, selector: #selector(spawnLabel),
             userInfo: nil, repeats: true)
+    }
+
+    private func setupTitleLabel() {
+        titleLabel.text =
+            "Süre bitmeden araınızdaki ajanı bulun! Yoksa ajan kazanır"
+        titleLabel.textColor = .white
+        titleLabel.font = UIFont.boldSystemFont(ofSize: 18)
+        titleLabel.textAlignment = .center
+        titleLabel.numberOfLines = 0
+        titleLabel.lineBreakMode = .byWordWrapping
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+    }
+
+    private func setupSubtitleLabel() {
+        subtitleLabel.text =
+            "Herkes hazır olduğunda süreyi başlatmak içn ekrana dokun"
+        subtitleLabel.textColor = .white
+        subtitleLabel.font = UIFont.systemFont(ofSize: 14)
+        subtitleLabel.textAlignment = .center
+        subtitleLabel.numberOfLines = 0
+        subtitleLabel.lineBreakMode = .byWordWrapping
+        subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
     }
 
     @objc func spawnLabel() {
@@ -88,7 +94,7 @@ class StartTimerViewController: UIViewController {
         let forbiddenRect = bottomFrame.insetBy(dx: 30, dy: 30)
 
         // Etiketin yasaklı (koyu kutu) alana çakışıp çakışmadığını kontrol eder
-        // Eğer çakışmıyorsa (intersects == false) → true döner → “Bu konum güvenli”.
+        // Eğer çakışmıyorsa (intersects == false) → true döner → "Bu konum güvenli".
         func isSafe(_ point: CGPoint, labelSize: CGSize) -> Bool {
             let labelFrame = CGRect(origin: point, size: labelSize)
             return !labelFrame.intersects(forbiddenRect)
