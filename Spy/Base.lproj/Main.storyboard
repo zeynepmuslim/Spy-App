@@ -38,7 +38,7 @@
                     </view>
                     <navigationItem key="navigationItem" id="AaW-5X-gRl"/>
                     <connections>
-                        <segue destination="orL-jf-W9a" kind="show" identifier="gameSettingsToCards" id="Bq9-At-xlh"/>
+                        <segue destination="orL-jf-W9a" kind="showDetail" identifier="gameSettingsToCards" customClass="StoryboardFadeToBlueSegue" customModule="Spy" customModuleProvider="target" id="Bq9-At-xlh"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="p8N-NX-XPG" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -57,7 +57,7 @@
                     </view>
                     <navigationItem key="navigationItem" id="2aB-zZ-juu"/>
                     <connections>
-                        <segue destination="wET-9W-NNz" kind="show" identifier="CardsToTimerStart" id="dV5-Wd-zYx"/>
+                        <segue destination="wET-9W-NNz" kind="showDetail" identifier="CardsToTimerStart" customClass="StoryboardFadeToBlueSegue" customModule="Spy" customModuleProvider="target" id="dV5-Wd-zYx"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="QLy-Gt-RF8" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -67,7 +67,7 @@
         <!--Start Timer View Controller-->
         <scene sceneID="WL7-Sk-bP2">
             <objects>
-                <viewController modalPresentationStyle="fullScreen" id="wET-9W-NNz" customClass="StartTimerViewController" customModule="Spy" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController modalTransitionStyle="crossDissolve" modalPresentationStyle="fullScreen" id="wET-9W-NNz" customClass="StartTimerViewController" customModule="Spy" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="3qy-y5-W6C">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -75,10 +75,29 @@
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
                     <navigationItem key="navigationItem" id="8cA-ae-9Xc"/>
+                    <connections>
+                        <segue destination="WV0-fg-cvc" kind="showDetail" identifier="TimerStarttoCountdown" customClass="StoryboardFadeToBlueSegue" customModule="Spy" customModuleProvider="target" id="E7R-pj-cls"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="tiY-wL-MZP" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="2431" y="4"/>
+        </scene>
+        <!--Countdown View Controller-->
+        <scene sceneID="A7m-9c-819">
+            <objects>
+                <viewController modalPresentationStyle="fullScreen" id="WV0-fg-cvc" customClass="CountdownViewController" customModule="Spy" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="0Jd-gu-srx">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="qwk-ph-tvs"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="LLx-ih-Jjs"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="0YD-7m-ZT8" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3201" y="4"/>
         </scene>
     </scenes>
     <resources>

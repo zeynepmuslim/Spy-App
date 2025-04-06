@@ -47,6 +47,9 @@ class StartTimerViewController: UIViewController {
         spawnTimer = Timer.scheduledTimer(
             timeInterval: 2.0, target: self, selector: #selector(spawnLabel),
             userInfo: nil, repeats: true)
+
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
+        view.addGestureRecognizer(tapGesture)
     }
 
     private func setupTitleLabel() {
@@ -165,6 +168,10 @@ class StartTimerViewController: UIViewController {
                 )
                 self.activeLabelCenters.removeAll { $0 == centerToRemove }
             })
+    }
+
+    @objc func handleTap(_ sender: UITapGestureRecognizer) {
+        performSegue(withIdentifier: "TimerStarttoCountdown", sender: self)
     }
 
     deinit {

@@ -2,7 +2,6 @@ import SwiftUI
 import UIKit
 class GameSettingsViewController: UIViewController {
  
-    /// LAG VAR BUTONLARA ARDI ARDINA BASILINCA DEACTİVE OLUYOR AMA RESİMLER DÜŞMÜYOR
     /// AYRICA HER ZAMAN CİVİL SAYISI AJAN SAYISIDAN FAZLA OLMALI AYARLARAAAA
     
     private enum Constants {
@@ -44,7 +43,7 @@ class GameSettingsViewController: UIViewController {
                 title: "Oyuncu Sayısı",
                 target: self,
                 index: 0,
-                minSpyCount: 3,
+                minSpyCount: 1,
                 maxSpyCount: 10
             ),
             PlayerSettingsGroupManager.PlayerGroup(
