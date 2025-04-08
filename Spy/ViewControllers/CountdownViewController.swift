@@ -46,9 +46,8 @@ class CountdownViewController: UIViewController {
     
     private lazy var collectionView: UICollectionView = {
         let cv = UICollectionView(frame: .zero, collectionViewLayout: centeredFlowLayout)
-        cv.translatesAutoresizingMaskIntoConstraints = false // Auto Layout için gerekli
-        cv.backgroundColor = .clear // Arka planı şeffaf yap, konteyner rengi görünsün.
-        // Kullanılacak hücre tipini CollectionView'e kaydet.
+        cv.translatesAutoresizingMaskIntoConstraints = false
+        cv.backgroundColor = .clear
         cv.register(ChildCollectionViewCell.self, forCellWithReuseIdentifier: ChildCollectionViewCell.identifier)
         cv.dataSource = self // Veri kaynağı olarak bu sınıfı ata (aşağıdaki extension).
         cv.delegate = self // Delegate olarak bu sınıfı ata (aşağıdaki extension).
@@ -59,15 +58,17 @@ class CountdownViewController: UIViewController {
     private let containerView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.layer.borderWidth = 1 // Kenarlık kalınlığı
-        view.layer.borderColor = UIColor.lightGray.cgColor // Kenarlık rengi
-        view.backgroundColor = .white // Konteynerin arka plan rengi
         return view
     }()
     
     private var currentColumns: Int = 3
     private var lastKnownCollectionViewSize: CGSize = .zero
     private var selectedIndex: IndexPath? = nil
+    
+    /// Computed property to check if any cell is currently selected.
+    private var isAnyCellSelected: Bool {
+        return selectedIndex != nil
+    }
     
     private var bottomLabel = UILabel()
     
@@ -94,7 +95,7 @@ class CountdownViewController: UIViewController {
         let currentSize = collectionView.bounds.size // CollectionView'in mevcut boyutunu al.
         // Boyut geçerliyse (sıfır değil) VE önceki bilinen boyuttan farklıysa...
         if currentSize != .zero && currentSize != lastKnownCollectionViewSize {
-            print("CollectionView boyutu değişti: \(currentSize), layout geçersiz kılınıyor ve veri yeniden yükleniyor.")
+//            print("CollectionView boyutu değişti: \(currentSize), layout geçersiz kılınıyor ve veri yeniden yükleniyor.")
             lastKnownCollectionViewSize = currentSize // Son bilinen boyutu güncelle.
 
             // 1. Layout'u GEÇERSİZ KIL: Bu, sizeForItemAt'in yeni (doğru) boyutları kullanmasını sağlar.
@@ -136,7 +137,7 @@ class CountdownViewController: UIViewController {
         // Satırlar arası minimum dikey boşluk.
         layout.minimumLineSpacing = verticalPadding
 
-        print("Layout parametreleri \(columns) sütun için yapılandırılıyor.")
+//        print("Layout parametreleri \(columns) sütun için yapılandırılıyor.")
         // Parametreler ayarlandıktan sonra layout'u GEÇERSİZ KIL.
         // Bu, CollectionView'in bir sonraki layout döngüsünde sizeForItemAt delegate metodunu
         // yeni ayarlarla çağırmasını ve layout'u yeniden hesaplamasını sağlar.
@@ -196,7 +197,7 @@ class CountdownViewController: UIViewController {
         findSpyContainer.translatesAutoresizingMaskIntoConstraints = false
         topContainer.addSubview(findSpyContainer)
         
-        topContainer.backgroundColor = .green
+//        topContainer.backgroundColor = .green
         
         findSpyContainer.addSubview(findSpyTitle)
         findSpyContainer.addSubview(findSpyLabel)
@@ -303,9 +304,9 @@ class CountdownViewController: UIViewController {
                 equalTo: view.heightAnchor, multiplier: 0.09),
             
             containerView.leadingAnchor.constraint(
-                equalTo: darkBottomView.leadingAnchor, constant: Constants.bigMargin),
+                equalTo: darkBottomView.leadingAnchor, constant: Constants.littleMargin),
             containerView.trailingAnchor.constraint(
-                equalTo: darkBottomView.trailingAnchor, constant: -Constants.bigMargin),
+                equalTo: darkBottomView.trailingAnchor, constant: -Constants.littleMargin),
             containerView.topAnchor.constraint(equalTo: topContainer.bottomAnchor),
             containerView.bottomAnchor.constraint(equalTo: bottomContainer.topAnchor),
             
@@ -408,8 +409,8 @@ class CountdownViewController: UIViewController {
             height: GeneralConstants.Button.biggerHeight)
         button.onClick = { [weak self] in
             guard let self = self else { return }
-            self.performSegue(
-                withIdentifier: "TimerStarttoCountdown", sender: self)
+//            self.performSegue(
+//                withIdentifier: "TimerStarttoCountdown", sender: self)
         }
         return button
     }
@@ -444,36 +445,63 @@ extension CountdownViewController: UICollectionViewDataSource {
 
         // --- Selection State Handling ---
         let isSelected = (indexPath == selectedIndex)
-        let shrinkTransform = CGAffineTransform(scaleX: 0.9, y: 0.9)
-        let biggerTransform = CGAffineTransform(scaleX: 1.1, y: 1.1)
+        let shrinkTransform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+        let biggerTransform = CGAffineTransform(scaleX: 1.05, y: 1.05)
         let normalTransform = CGAffineTransform.identity
 
-        let targetColor: UIColor
-        let targetTransform: CGAffineTransform
+        let targetStatus: ButtonStatus // Use ButtonStatus for appearance
 
-        if isSelected {
-            targetColor = .systemRed
-            targetTransform = biggerTransform
-        } else {
-            targetColor = .systemBlue // Default color
-            // Shrink if another cell IS selected
-            targetTransform = (selectedIndex != nil) ? shrinkTransform : normalTransform
-        }
+        // Use the helper function to get the target state
+        let (status, transform) = getTargetState(for: indexPath, currentlySelectedIndex: selectedIndex)
+        targetStatus = status // Assign to the existing variable if needed elsewhere, or remove targetStatus if not needed
+        let targetTransform = transform
 
         // Set initial state directly
+        cell.setStatus(targetStatus) // Set status for initial appearance
         cell.transform = targetTransform
 
         // Hücrenin configure metodunu çağırarak ID, renk ve ikonu ayarla.
-        cell.configure(id: childId, color: targetColor, iconName: iconName)
+        // Configure ID and Icon *only*, color is handled by setStatus
+        cell.configure(id: childId, color: .clear /* Color handled by status */, iconName: iconName) 
         // Yapılandırılmış hücreyi döndür.
         return cell
     }
 }
 
+// MARK: - Helper Function for Cell State
+private extension CountdownViewController {
+    func getTargetState(for indexPath: IndexPath, currentlySelectedIndex: IndexPath?) -> (status: ButtonStatus, transform: CGAffineTransform) {
+        let isCurrentCellSelected = (indexPath == currentlySelectedIndex)
+        // Use the computed property here for clarity
+        let anyCellSelected = self.isAnyCellSelected // Renamed from isAnyCellSelected to avoid shadowing
+
+        let targetStatus: ButtonStatus
+        let targetTransform: CGAffineTransform
+
+        let shrinkTransform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+        let biggerTransform = CGAffineTransform(scaleX: 1.05, y: 1.05)
+        let normalTransform = CGAffineTransform.identity
+
+        if isCurrentCellSelected {
+            targetStatus = .activeRed // Status for the selected cell
+            targetTransform = biggerTransform
+        } else {
+            // If another cell is selected, this one shrinks. Otherwise, it's normal.
+            // Use the computed property's value
+            if anyCellSelected {
+                targetStatus = .activeBlue // Status for non-selected cells when one IS selected (shrunk)
+                targetTransform = shrinkTransform
+            } else {
+                targetStatus = .activeBlue // Status for non-selected cells when NONE are selected (normal)
+                targetTransform = normalTransform
+            }
+        }
+        return (targetStatus, targetTransform)
+    }
+}
 
 extension CountdownViewController: UICollectionViewDelegate {
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let previouslySelectedIndex = selectedIndex // Store previous selection
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) { // Store previous selection
 
         if indexPath == selectedIndex { // Tapped already selected cell
             selectedIndex = nil // Deselect
@@ -483,38 +511,25 @@ extension CountdownViewController: UICollectionViewDelegate {
 
         // Print selection status
         if let selected = selectedIndex {
-            print("Selected index: \(selected.item)")
+            print("Selected cell: \(selected.item + 1) ")
         } else {
             print("Selection cleared")
         }
 
-        // --- Animate changes to visible cells ---
+        // Update the blame button state based on selection
+        let blameButtonStatus: ButtonStatus = self.isAnyCellSelected ? .activeRed : .deactive // Assuming .inactive status exists
+        self.blamePlayerButton.setStatus(blameButtonStatus)
+        
         UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0.5, options: [.curveEaseInOut, .allowUserInteraction], animations: {
             for visibleCell in collectionView.visibleCells {
                 guard let cell = visibleCell as? ChildCollectionViewCell, // Make sure it's our cell type
                       let indexPathForCell = collectionView.indexPath(for: cell) else { continue }
 
-                let isNowSelected = (indexPathForCell == self.selectedIndex)
-                let shrinkTransform = CGAffineTransform(scaleX: 0.95, y: 0.95)
-                let biggerTransform = CGAffineTransform(scaleX: 1.05, y: 1.05)
-                let normalTransform = CGAffineTransform.identity
+                // Use the helper function to get the target state
+                let (targetStatus, targetTransform) = self.getTargetState(for: indexPathForCell, currentlySelectedIndex: self.selectedIndex)
 
-                let targetTransform: CGAffineTransform
-                let targetColor: UIColor
-
-                if isNowSelected {
-                    targetColor = .systemRed
-                    targetTransform = biggerTransform
-                } else {
-                    targetColor = .systemBlue // Default color
-                    // Shrink if any cell IS selected
-                    targetTransform = (self.selectedIndex != nil) ? shrinkTransform : normalTransform
-                }
-
+                cell.setStatus(targetStatus) // Update status within animation block
                 cell.transform = targetTransform
-                // Update background color directly for animation
-                // Assuming configure sets contentView.backgroundColor
-                cell.contentView.backgroundColor = targetColor
             }
         }, completion: nil)
     }

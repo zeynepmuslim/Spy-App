@@ -22,6 +22,9 @@ enum GeneralConstants {
     }
     
     enum Font {
+        static let size07: CGFloat = 24
+        static let size06: CGFloat = 22
+        static let size05: CGFloat = 20
         static let size04: CGFloat = 18
         static let size03: CGFloat = 16
         static let size02: CGFloat = 14

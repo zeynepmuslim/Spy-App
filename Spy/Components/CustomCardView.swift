@@ -93,6 +93,7 @@ class CustomCardView: UIView {
     private var backText3: String = ""
     
     private var hasBeenFlipped = false
+    var isFlipEnabled: Bool = true
     
     private let containerView: UIView = {
         let view = UIView()
@@ -286,7 +287,7 @@ class CustomCardView: UIView {
     }
 
     @objc private func handleTap() {
-        if !hasBeenFlipped {
+        if !hasBeenFlipped && isFlipEnabled {
             guard isInteractionEnabled else { return }
             
             let status: ButtonStatus = isSpy ? .activeRed : .activeBlue
@@ -373,7 +374,7 @@ class CustomCardView: UIView {
             containerView.transform = CGAffineTransform(rotationAngle: rotationAngle)
             
         case .ended:
-            if hasBeenFlipped {
+            if hasBeenFlipped || !isFlipEnabled {
                 let horizontalVelocityHigh = abs(velocity.x) > throwVelocityThreshold
                 let horizontalMovedFar = abs(translation.x) > bounds.width * dismissalThreshold
                 let shouldDismissHorizontally = horizontalVelocityHigh || horizontalMovedFar

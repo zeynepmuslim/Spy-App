@@ -11,7 +11,7 @@
         <!--Enter View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="EnterViewController" customModule="Spy" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController modalPresentationStyle="fullScreen" id="BYZ-38-t0r" customClass="EnterViewController" customModule="Spy" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -20,11 +20,86 @@
                     </view>
                     <connections>
                         <segue destination="KiQ-IM-lpF" kind="show" identifier="menuToGameSettings" id="hwg-sC-6Y3"/>
+                        <segue destination="WbC-3s-KeI" kind="showDetail" identifier="EnterToHowToPlay" customClass="StoryboardFadeToBlueSegue" customModule="Spy" customModuleProvider="target" id="gaY-Qa-94r"/>
+                        <segue destination="tT4-B1-quz" kind="showDetail" identifier="EnterToDefaultSettings" customClass="StoryboardFadeToBlueSegue" customModule="Spy" customModuleProvider="target" id="eRh-4F-1QK"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="102" y="4"/>
+            <point key="canvasLocation" x="109" y="4"/>
+        </scene>
+        <!--How To Play View Controller-->
+        <scene sceneID="m8X-mK-dlV">
+            <objects>
+                <viewController modalPresentationStyle="fullScreen" id="WbC-3s-KeI" customClass="HowToPlayViewController" customModule="Spy" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="vWw-Kw-duO">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="0xj-te-H5V"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="tEW-nb-eMt"/>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="showDetail" identifier="HowToPlayToEnter" id="PAD-uV-fs1"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="5w4-tp-LLe" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-673" y="773"/>
+        </scene>
+        <!--Default Settings View Controller-->
+        <scene sceneID="pXa-dM-pyI">
+            <objects>
+                <viewController modalPresentationStyle="fullScreen" id="tT4-B1-quz" customClass="DefaultSettingsViewController" customModule="Spy" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Nog-Fx-J86">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="C2J-D3-p58"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="Pad-oL-hRq"/>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="showDetail" identifier="DefaultSettingsToEnter" customClass="StoryboardFadeToBlueSegue" customModule="Spy" customModuleProvider="target" id="E96-rP-kJg"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="xj3-rD-bCg" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="108" y="732"/>
+        </scene>
+        <!--Custom Players View Controller-->
+        <scene sceneID="8Ia-lE-7zY">
+            <objects>
+                <viewController modalPresentationStyle="fullScreen" id="v1k-v9-8zd" customClass="CustomPlayersViewController" customModule="Spy" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="BbE-hy-6cU">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="Zj4-7Y-U4N"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="XKE-Ol-cCZ"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="176-GY-W4t" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="876" y="732"/>
+        </scene>
+        <!--Custom Categories View Controller-->
+        <scene sceneID="MuC-jl-IK4">
+            <objects>
+                <viewController modalPresentationStyle="fullScreen" id="2iu-34-rqJ" customClass="CustomCategoriesViewController" customModule="Spy" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="FVi-Vx-RPf">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="tzr-Es-yJ5"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="AnO-FY-Laj"/>
+                    <connections>
+                        <segue destination="bao-Wb-PtH" kind="show" identifier="CustomCategoriesToInsideCategory" id="MH0-oV-C71"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="AoV-TS-9eN" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1576" y="732"/>
         </scene>
         <!--Game Settings View Controller-->
         <scene sceneID="xcZ-Ib-Pbl">
@@ -39,6 +114,9 @@
                     <navigationItem key="navigationItem" id="AaW-5X-gRl"/>
                     <connections>
                         <segue destination="orL-jf-W9a" kind="showDetail" identifier="gameSettingsToCards" customClass="StoryboardFadeToBlueSegue" customModule="Spy" customModuleProvider="target" id="Bq9-At-xlh"/>
+                        <segue destination="v1k-v9-8zd" kind="showDetail" identifier="GameSettingsToPlayers" customClass="StoryboardFadeToBlueSegue" customModule="Spy" customModuleProvider="target" id="Gkf-pX-Bdn"/>
+                        <segue destination="2iu-34-rqJ" kind="showDetail" identifier="GameSettingsToCategories" customClass="StoryboardFadeToBlueSegue" customModule="Spy" customModuleProvider="target" id="1CC-mX-Wiw"/>
+                        <segue destination="BYZ-38-t0r" kind="showDetail" identifier="GameSettingsToMenu" id="j4n-3z-IqF"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="p8N-NX-XPG" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -94,12 +172,69 @@
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
                     <navigationItem key="navigationItem" id="LLx-ih-Jjs"/>
+                    <connections>
+                        <segue destination="CnI-aV-pAf" kind="showDetail" identifier="CountdownToScores" customClass="StoryboardFadeToBlueSegue" customModule="Spy" customModuleProvider="target" id="iEq-pY-Scf"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0YD-7m-ZT8" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="3201" y="4"/>
         </scene>
+        <!--Scores View Controller-->
+        <scene sceneID="SPA-ou-1Rd">
+            <objects>
+                <viewController modalPresentationStyle="fullScreen" id="CnI-aV-pAf" customClass="ScoresViewController" customModule="Spy" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="bwD-Th-qNH">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="YAc-J8-SaT"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="ZCt-Jh-Aee"/>
+                    <connections>
+                        <segue destination="vMr-Kw-aLP" kind="showDetail" identifier="ScoresToTotalScore" customClass="StoryboardFadeToBlueSegue" customModule="Spy" customModuleProvider="target" id="yeD-Wb-qXF"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="NH9-b2-yCV" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3995" y="4"/>
+        </scene>
+        <!--Inside Categoryt View Contoller-->
+        <scene sceneID="Z61-ff-vro">
+            <objects>
+                <viewController id="bao-Wb-PtH" customClass="InsideCategorytViewContoller" customModule="Spy" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="PXw-bN-MiX">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="842"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="TaF-nE-QKj"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="5r1-Na-dZ8"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="7aL-xY-4kq" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1575" y="1462"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="294-tq-pXO">
+            <objects>
+                <viewController modalPresentationStyle="fullScreen" id="vMr-Kw-aLP" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="PQt-VS-yuD">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="HtX-CJ-WWb"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="Mkt-ud-XoQ"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Vd5-kt-ArM" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="4770" y="4"/>
+        </scene>
     </scenes>
+    <inferredMetricsTieBreakers>
+        <segue reference="PAD-uV-fs1"/>
+    </inferredMetricsTieBreakers>
     <resources>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

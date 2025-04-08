@@ -1,8 +1,14 @@
-import SwiftUI
+//
+//  DefaultSettingsViewController.swift
+//  Spy
+//
+//  Created by Zeynep Müslim on 8.04.2025.
+//
+
 import UIKit
-class GameSettingsViewController: UIViewController {
- 
-    /// AYRICA HER ZAMAN CİVİL SAYISI AJAN SAYISIDAN FAZLA OLMALI AYARLARAAAA
+import SwiftUI
+
+class DefaultSettingsViewController: UIViewController {
     
     private enum Constants {
         static let bigMargin: CGFloat = GeneralConstants.Layout.bigMargin
@@ -21,6 +27,8 @@ class GameSettingsViewController: UIViewController {
     private var spyGroup: PlayerSettingsGroupManager.PlayerGroup? {
         playerGroups.last
     }
+    
+    let titleVCLabel = UILabel()
 
     private lazy var backButton = BackButton(
         target: self, action: #selector(customBackAction))
@@ -30,6 +38,14 @@ class GameSettingsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        titleVCLabel.text = "Varsayılan Ayarlar"
+        titleVCLabel.font = UIFont.systemFont(ofSize: GeneralConstants.Font.size05, weight: .bold)
+        titleVCLabel.textColor = .spyBlue01
+        titleVCLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        bottomView.addSubview(titleVCLabel)
+        
         setupPlayerGroups()
         setupSettingsGroups()
         setupInitialUI()
@@ -112,19 +128,10 @@ class GameSettingsViewController: UIViewController {
                     constant: -Constants.bigMargin)
             ])
         } else {
-            // When this code runs:
             let previousSettingsGroup = settingsGroups[safe: settingsGroups.firstIndex(of: group)?.advanced(by: -1) ?? 0]
-            // It's like saying:
-            // "Find where 'group' appears in settingsGroups array"
-            // The == operator is used internally to compare each group with 'group'
-            // So it's comparing:
-            // currentGroup == group
-            // where:
-            // - lhs (left-hand side) is the current group being checked
-            // - rhs (right-hand side) is the 'group' we're looking for
             NSLayoutConstraint.activate([
                 group.stackView.topAnchor.constraint(
-                    equalTo: previousSettingsGroup?.stackView.bottomAnchor ?? bottomView.topAnchor,
+                    equalTo: previousSettingsGroup?.stackView.bottomAnchor ?? titleVCLabel.bottomAnchor,
                     constant: Constants.bigMargin),
                 group.stackView.leadingAnchor.constraint(
                     equalTo: bottomView.leadingAnchor,
@@ -149,8 +156,8 @@ class GameSettingsViewController: UIViewController {
         } else {
             NSLayoutConstraint.activate([
                 group.label.topAnchor.constraint(
-                    equalTo: bottomView.topAnchor,
-                    constant: Constants.bigMargin),
+                    equalTo: titleVCLabel.bottomAnchor,
+                    constant: Constants.littleMargin),
                 group.stackView.topAnchor.constraint(
                     equalTo: group.label.bottomAnchor,
                     constant: Constants.littleMargin),
@@ -215,52 +222,46 @@ class GameSettingsViewController: UIViewController {
 
     private func createStartButton() -> CustomGradientButton {
         let button = CustomGradientButton(
-            labelText: "Oyna", width: 100, height: GeneralConstants.Button.biggerHeight, isBorderlessButton: true)
+            labelText: "Varsayılan Olarak Kaydet", width: 100, height: GeneralConstants.Button.biggerHeight)
+        
+        let playerCount = playerGroup?.imageViews.count ?? 0
+        let spyCount = spyGroup?.imageViews.count ?? 0
+        
+        // Get other settings
+        var category = ""
+        var roundDuration = ""
+        var roundCount = ""
+        var showHints = false
+        
+        for (index, group) in settingsGroups.enumerated() {
+            switch index {
+            case 0:
+                category = String(describing: group.value)
+            case 1:
+                roundDuration = String(describing: group.value)
+            case 2:
+                roundCount = String(describing: group.value)
+            case 3:
+                showHints = group.switchButton?.isOn ?? false
+            default:
+                break
+            }
+        }
+        
+        
         button.onClick = { [weak self] in
             guard let self = self else { return }
-            self.performSegue(withIdentifier: "gameSettingsToCards", sender: self)
+           customBackAction()
+            
+            print("Default Settings Setup:")
+            print("Total Players: \(playerCount)")
+            print("Spy Count: \(spyCount)")
+            print("Category: \(category)")
+            print("Round Duration: \(roundDuration)")
+            print("Round Count: \(roundCount)")
+            print("Show Hints: \(showHints)")
         }
         return button
-    }
-
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "gameSettingsToCards",
-           let gameCardsVC = segue.destination as? GameCardsViewController {
-            
-            // Get player and spy counts
-            let playerCount = playerGroup?.imageViews.count ?? 0
-            let spyCount = spyGroup?.imageViews.count ?? 0
-            
-            // Get other settings
-            var category = ""
-            var roundDuration = ""
-            var roundCount = ""
-            var showHints = false
-            
-            for (index, group) in settingsGroups.enumerated() {
-                switch index {
-                case 0:
-                    category = String(describing: group.value)
-                case 1:
-                    roundDuration = String(describing: group.value)
-                case 2:
-                    roundCount = String(describing: group.value)
-                case 3:
-                    showHints = group.switchButton?.isOn ?? false
-                default:
-                    break
-                }
-            }
-            
-            gameCardsVC.setGameParameters(
-                playerCount: playerCount,
-                spyCount: spyCount,
-                category: category,
-                roundDuration: roundDuration,
-                roundCount: roundCount,
-                showHints: showHints
-            )
-        }
     }
 
     private func createCustomizeButton() -> CustomGradientButton {
@@ -284,6 +285,10 @@ class GameSettingsViewController: UIViewController {
                 equalTo: view.trailingAnchor, constant: -Constants.bigMargin),
             bottomView.topAnchor.constraint(
                 equalTo: backButton.bottomAnchor, constant: 10),
+            
+            titleVCLabel.topAnchor.constraint(equalTo: bottomView.topAnchor, constant: Constants.bigMargin),
+            titleVCLabel.leadingAnchor.constraint(equalTo: bottomView.leadingAnchor, constant: Constants.bigMargin),
+            titleVCLabel.trailingAnchor.constraint(equalTo: bottomView.trailingAnchor, constant: -Constants.bigMargin),
 
             startButton.leadingAnchor.constraint(
                 equalTo: view.leadingAnchor, constant: Constants.bigMargin),
@@ -312,20 +317,14 @@ class GameSettingsViewController: UIViewController {
     }
 
     @objc private func customBackAction() {
-        self.performSegue(withIdentifier: "GameSettingsToMenu", sender: self)
+        self.performSegue(withIdentifier: "DefaultSettingsToEnter", sender: self)
     }
 }
 
-extension Collection {
-    subscript(safe index: Index) -> Element? {
-        return indices.contains(index) ? self[index] : nil
-    }
-}
-
-struct ViewController_Previews: PreviewProvider {
+struct DefaultSettingsViewController_Previews: PreviewProvider {
     static var previews: some View {
         ViewControllerPreview {
-            GameSettingsViewController()
+            DefaultSettingsViewController()
         }
     }
 }

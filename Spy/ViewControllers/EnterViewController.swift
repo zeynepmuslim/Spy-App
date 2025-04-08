@@ -65,12 +65,14 @@ class EnterViewController: UIViewController {
         
         settingsButton.onClick = {
             print("Settings Button Clicked!")
-            settingsButton.updateAppearance(shadowColor: .red, gradientColor: .red, buttonColor: .red)
-            settingsButton.labelText = "Button Clicked"
+//            settingsButton.updateAppearance(shadowColor: .red, gradientColor: .red, buttonColor: .red)
+//            settingsButton.labelText = "Button Clicked"
+            self.performSegue(withIdentifier: "EnterToDefaultSettings", sender: self)
         }
         
         howToPlayButton.onClick = {
             print("How to Play Button Clicked!")
+            self.performSegue(withIdentifier: "EnterToHowToPlay", sender: self)
         }
         
         
